@@ -1,172 +1,185 @@
 # 🎰 Loto FDJ Analyzer
 
-Application web complète pour analyser les tirages historiques du Loto FDJ et générer des grilles optimisées avec contraintes avancées.
+Complete web application to analyze historical French Loto draws and generate optimized grids with advanced constraints.
 
 ## ⚠️ Disclaimer
 
-**Cet outil est à but éducatif uniquement.** L'optimisation statistique ne garantit aucun gain. Les résultats du Loto sont aléatoires et imprévisibles. Les jeux d'argent comportent des risques. Jouez responsable.
+**This tool is for educational purposes only.** Statistical optimization does not guarantee any winnings. Lottery results are random and unpredictable. Gambling involves risks. Play responsibly.
 
-## 🚀 Fonctionnalités
+## 🚀 Features
 
-### 1. Synchronisation automatique des données
-- Récupération automatique de **2412 tirages** depuis ReducMiz
-- Parsing HTML robuste avec validation
-- Cache de 6h pour éviter les requêtes excessives
-- Gestion d'erreurs et rate limiting
+### 1. Automatic Data Synchronization
 
-### 2. Page Résultats
-- Liste paginée de tous les tirages (25 par page)
-- Filtres avancés :
-  - Par numéro (1-49)
-  - Par chance (1-10)
-  - Par période (date début/fin)
-- Page détail pour chaque tirage avec navigation
-- Affichage style ReducMiz modernisé
+- Automatic retrieval of **2412 draws** from ReducMiz
+- Robust HTML parsing with validation
+- 6-hour cache to avoid excessive requests
+- Error handling and rate limiting
 
-### 3. Page Analyse
-- Choix de fenêtre de données :
-  - Tout (2412 tirages)
-  - 1000 derniers
-  - 200 derniers
-  - Personnalisé (date from/to)
-- Statistiques complètes :
-  - Fréquences numéros 1-49
-  - Fréquences chance 1-10
-  - Distribution pair/impair
-  - Distribution bas/haut (1-24 / 25-49)
-  - Numéros ≥31 par tirage
-  - Gaps actuels (tirages depuis dernière sortie)
-  - Top 20 paires fréquentes
-  - Percentiles P10/P90 des sommes
-- Visualisations avec Recharts
+### 2. Results Page
 
-### 4. Générateur de grilles
-- Génération de 1 à 20 grilles
-- **Contraintes dures** (obligatoires) :
-  - Exclure numéros du tirage précédent
-  - Exclure chance précédente
-  - Ratio pair/impair (2/3 ou 3/2)
-  - Ratio bas/haut (2/3 ou 3/2)
-  - Max 2 numéros par dizaine
-  - Max 1 paire consécutive
-  - Pas de triplets consécutifs
-  - Pas de progression arithmétique ≥3 numéros
-- **Contraintes souples** (optimisation par score) :
-  - Somme proche du centre [P10..P90]
-  - Amplitude ≥ 25
-  - Au moins 2 numéros ≥31
-  - Limiter multiples de 5
-  - Éviter numéros populaires
-  - Éviter chances spécifiques
-- **Diversification** :
-  - Max overlap entre grilles (≤1 par défaut)
-  - Pas de doublons
-- Export CSV des grilles générées
+- Paginated list of all draws (25 per page)
+- Advanced filters:
+  - By number (1-49)
+  - By chance number (1-10)
+  - By date range (start/end date)
+- Detail page for each draw with navigation
+- Modernized ReducMiz-style display
 
-## 📋 Prérequis
+### 3. Analysis Page
 
-- Node.js 18+ 
-- npm ou yarn
+- Data window selection:
+  - All (2412 draws)
+  - Last 1000
+  - Last 200
+  - Custom (from/to dates)
+- Complete statistics:
+  - Number frequencies 1-49
+  - Chance number frequencies 1-10
+  - Even/odd distribution
+  - Low/high distribution (1-24 / 25-49)
+  - Numbers ≥31 per draw
+  - Current gaps (draws since last appearance)
+  - Top 20 frequent pairs
+  - Sum percentiles P10/P90
+- Visualizations with Recharts
 
-## 🛠️ Installation
+### 4. Grid Generator
 
-1. **Cloner ou naviguer vers le projet**
+- Generate 1 to 20 grids
+- **Hard constraints** (mandatory):
+  - Exclude numbers from previous draw
+  - Exclude previous chance number
+  - Even/odd ratio (2/3 or 3/2)
+  - Low/high ratio (2/3 or 3/2)
+  - Max 2 numbers per decade
+  - Max 1 consecutive pair
+  - No consecutive triplets
+  - No arithmetic progression ≥3 numbers
+- **Soft constraints** (score-based optimization):
+  - Sum close to center [P10..P90]
+  - Range ≥ 25
+  - At least 2 numbers ≥31
+  - Limit multiples of 5
+  - Avoid popular numbers
+  - Avoid specific chance numbers
+- **Diversification**:
+  - Max overlap between grids (≤1 by default)
+  - No duplicates
+- CSV export of generated grids
+
+## 📋 Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+## Installation
+
+1. **Clone the repository**
+
 ```bash
-cd C:\Users\caill\CascadeProjects\loto-fdj-analyzer
+git clone https://github.com/Jeremy13800/loto-optimizer.git
+cd loto-optimizer
 ```
 
-2. **Installer les dépendances**
+2. **Install dependencies**
+
 ```bash
 npm install
 ```
 
-3. **Initialiser la base de données**
+3. **Initialize the database**
+
 ```bash
 npx prisma generate
 npx prisma db push
 ```
 
-4. **Lancer le serveur de développement**
+4. **Start the development server**
+
 ```bash
 npm run dev
 ```
 
-5. **Ouvrir l'application**
+5. **Open the application**
+
 ```
 http://localhost:3000
 ```
 
-## 📖 Guide d'utilisation
+## 📖 Usage Guide
 
-### Première utilisation
+### First Use
 
-1. **Synchroniser les données**
-   - Aller sur la page d'accueil
-   - Cliquer sur "Synchroniser maintenant"
-   - Attendre la fin de la synchronisation (peut prendre 30-60 secondes)
-   - Vérifier que ~2412 tirages ont été importés
+1. **Synchronize data**
+   - Go to the home page
+   - Click "Synchronize now"
+   - Wait for synchronization to complete (may take 30-60 seconds)
+   - Verify that ~2412 draws have been imported
 
-2. **Explorer les résultats**
-   - Aller sur `/results`
-   - Utiliser les filtres pour rechercher des tirages spécifiques
-   - Cliquer sur "Afficher détails" pour voir un tirage en détail
+2. **Explore results**
+   - Go to `/results`
+   - Use filters to search for specific draws
+   - Click "Show details" to view a draw in detail
 
-3. **Analyser les statistiques**
-   - Aller sur `/analysis`
-   - Choisir une fenêtre de données
-   - Explorer les différentes visualisations
+3. **Analyze statistics**
+   - Go to `/analysis`
+   - Choose a data window
+   - Explore the different visualizations
 
-4. **Générer des grilles**
-   - Aller sur `/generator`
-   - Configurer les contraintes selon vos préférences
-   - Cliquer sur "Générer les grilles"
-   - Exporter en CSV si nécessaire
+4. **Generate grids**
+   - Go to `/generator`
+   - Configure constraints according to your preferences
+   - Click "Generate grids"
+   - Export to CSV if needed
 
-### Resynchronisation
+### Resynchronization
 
-La synchronisation est limitée à une fois toutes les 6 heures. Pour forcer une nouvelle synchronisation :
-- Attendre l'expiration du cache (6h)
-- Ou redémarrer le serveur
+Synchronization is limited to once every 6 hours. To force a new synchronization:
+
+- Wait for cache expiration (6h)
+- Or restart the server
 
 ## 🏗️ Architecture
 
-### Stack technique
+### Tech Stack
+
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
-- **Base de données**: SQLite + Prisma ORM
+- **Database**: SQLite + Prisma ORM
 - **UI**: React + Tailwind CSS
 - **Charts**: Recharts
 - **Scraping**: Cheerio
 
-### Structure du projet
+### Project Structure
+
 ```
-loto-fdj-analyzer/
+loto-optimizer/
 ├── app/
 │   ├── api/
 │   │   ├── draws/
-│   │   │   ├── sync/route.ts      # POST - Synchronisation
-│   │   │   ├── route.ts           # GET - Liste paginée
-│   │   │   └── [id]/route.ts      # GET - Détail tirage
-│   │   ├── stats/route.ts         # GET - Statistiques
-│   │   └── generate/route.ts      # POST - Génération grilles
+│   │   │   ├── sync/route.ts      # POST - Synchronization
+│   │   │   ├── route.ts           # GET - Paginated list
+│   │   │   └── [id]/route.ts      # GET - Draw detail
+│   │   ├── stats/route.ts         # GET - Statistics
+│   │   └── generate/route.ts      # POST - Grid generation
 │   ├── results/
-│   │   ├── page.tsx               # Liste des tirages
-│   │   └── [id]/page.tsx          # Détail d'un tirage
-│   ├── analysis/page.tsx          # Page d'analyse
-│   ├── generator/page.tsx         # Générateur de grilles
-│   ├── layout.tsx                 # Layout global
-│   ├── page.tsx                   # Page d'accueil
-│   └── globals.css                # Styles globaux
+│   │   ├── page.tsx               # Draws list
+│   │   └── [id]/page.tsx          # Draw detail
+│   ├── analysis/page.tsx          # Analysis page
+│   ├── generator/page.tsx         # Grid generator
+│   ├── layout.tsx                 # Global layout
+│   ├── page.tsx                   # Home page
+│   └── globals.css                # Global styles
 ├── components/
-│   └── NumberBadge.tsx            # Composant badge numéro
+│   └── NumberBadge.tsx            # Number badge component
 ├── lib/
-│   ├── prisma.ts                  # Client Prisma
-│   ├── types.ts                   # Types TypeScript
-│   ├── scraper.ts                 # Scraping & parsing HTML
-│   ├── stats.ts                   # Calculs statistiques
-│   └── generator.ts               # Génération de grilles
+│   ├── prisma.ts                  # Prisma client
+│   ├── types.ts                   # TypeScript types
+│   ├── scraper.ts                 # Scraping & HTML parsing
+│   ├── stats.ts                   # Statistical calculations
+│   └── generator.ts               # Grid generation
 ├── prisma/
-│   └── schema.prisma              # Schéma de base de données
+│   └── schema.prisma              # Database schema
 ├── package.json
 ├── tsconfig.json
 ├── tailwind.config.ts
@@ -176,9 +189,11 @@ loto-fdj-analyzer/
 ## 🔌 API Endpoints
 
 ### POST /api/draws/sync
-Synchronise les tirages depuis ReducMiz.
+
+Synchronizes draws from ReducMiz.
 
 **Response:**
+
 ```json
 {
   "count": 2412,
@@ -190,9 +205,11 @@ Synchronise les tirages depuis ReducMiz.
 ```
 
 ### GET /api/draws
-Liste paginée des tirages avec filtres.
+
+Paginated list of draws with filters.
 
 **Query params:**
+
 - `limit` (default: 25, max: 100)
 - `page` (default: 1)
 - `from` (date ISO)
@@ -202,6 +219,7 @@ Liste paginée des tirages avec filtres.
 - `sort` (asc|desc, default: desc)
 
 **Response:**
+
 ```json
 {
   "draws": [...],
@@ -213,9 +231,11 @@ Liste paginée des tirages avec filtres.
 ```
 
 ### GET /api/draws/[id]
-Détail d'un tirage avec navigation.
+
+Draw detail with navigation.
 
 **Response:**
+
 ```json
 {
   "id": "2026-02-25_3-12-25-38-42_7",
@@ -230,14 +250,17 @@ Détail d'un tirage avec navigation.
 ```
 
 ### GET /api/stats
-Statistiques sur une fenêtre de données.
+
+Statistics on a data window.
 
 **Query params:**
+
 - `window` (all|1000|200|custom)
-- `from` (si custom)
-- `to` (si custom)
+- `from` (if custom)
+- `to` (if custom)
 
 **Response:**
+
 ```json
 {
   "window": "all",
@@ -252,9 +275,11 @@ Statistiques sur une fenêtre de données.
 ```
 
 ### POST /api/generate
-Génère des grilles optimisées.
+
+Generates optimized grids.
 
 **Body:**
+
 ```json
 {
   "window": { "window": "all" },
@@ -267,6 +292,7 @@ Génère des grilles optimisées.
 ```
 
 **Response:**
+
 ```json
 {
   "grids": [
@@ -292,9 +318,10 @@ Génère des grilles optimisées.
 }
 ```
 
-## 🧪 Modèle de données
+## 🧪 Data Model
 
 ### Draw (Prisma)
+
 ```prisma
 model Draw {
   id          String   @id              // Hash stable: date_nums_chance
@@ -309,86 +336,96 @@ model Draw {
 }
 ```
 
-## 🔍 Algorithme de génération
+## 🔍 Generation Algorithm
 
 ### 1. Rejection Sampling
-- Génère des candidats aléatoires
-- Vérifie les contraintes dures
-- Rejette si non conforme
-- Continue jusqu'à avoir assez de grilles valides
+
+- Generates random candidates
+- Checks hard constraints
+- Rejects if non-compliant
+- Continues until enough valid grids
 
 ### 2. Score-based Optimization
-Chaque grille reçoit un score basé sur :
-- Distance à la somme cible (centre P10-P90)
-- Amplitude (bonus si ≥ minRange)
-- Nombre de numéros ≥31
-- Multiples de 5
-- Numéros à éviter
-- Chance (proximité fréquence moyenne)
+
+Each grid receives a score based on:
+
+- Distance to target sum (P10-P90 center)
+- Range (bonus if ≥ minRange)
+- Number of numbers ≥31
+- Multiples of 5
+- Numbers to avoid
+- Chance (proximity to average frequency)
 
 ### 3. Diversification
-- Vérifie l'overlap entre grilles
-- Évite les doublons exacts
-- Garantit la variété du pack
+
+- Checks overlap between grids
+- Avoids exact duplicates
+- Ensures pack variety
 
 ## 🐛 Debugging
 
-### Problème de synchronisation
-- Vérifier la connexion internet
-- Vérifier que ReducMiz est accessible
-- Consulter les logs serveur (console)
-- Attendre 6h si rate limit atteint
+### Synchronization Issues
 
-### Base de données corrompue
+- Check internet connection
+- Verify ReducMiz is accessible
+- Check server logs (console)
+- Wait 6h if rate limit reached
+
+### Corrupted Database
+
 ```bash
 rm prisma/dev.db
 npx prisma db push
-# Puis resynchroniser les données
+# Then resynchronize data
 ```
 
-### Erreurs de parsing
-Les erreurs de parsing sont loguées mais n'empêchent pas l'import des tirages valides. Vérifier la console serveur pour les détails.
+### Parsing Errors
 
-## 📊 Statistiques implémentées
+Parsing errors are logged but don't prevent import of valid draws. Check server console for details.
 
-1. **Fréquences numéros** : Nombre d'apparitions de chaque numéro (1-49)
-2. **Fréquences chance** : Nombre d'apparitions de chaque chance (1-10)
-3. **Numéros ≥31** : Distribution du nombre de numéros hauts par tirage
-4. **Pair/Impair** : Distribution des ratios (0/5, 1/4, 2/3, 3/2, 4/1, 5/0)
-5. **Bas/Haut** : Distribution 1-24 vs 25-49
-6. **Sommes** : Distribution + percentiles P10/P90
-7. **Amplitudes** : Distribution (max - min)
-8. **Gaps** : Nombre de tirages depuis dernière sortie de chaque numéro
-9. **Paires** : Top 20 paires les plus fréquentes
-10. **Dizaines** : Répartition par dizaine (implicite dans les contraintes)
+## 📊 Implemented Statistics
+
+1. **Number frequencies**: Number of appearances of each number (1-49)
+2. **Chance frequencies**: Number of appearances of each chance number (1-10)
+3. **Numbers ≥31**: Distribution of high numbers per draw
+4. **Even/Odd**: Ratio distribution (0/5, 1/4, 2/3, 3/2, 4/1, 5/0)
+5. **Low/High**: Distribution 1-24 vs 25-49
+6. **Sums**: Distribution + percentiles P10/P90
+7. **Ranges**: Distribution (max - min)
+8. **Gaps**: Number of draws since last appearance of each number
+9. **Pairs**: Top 20 most frequent pairs
+10. **Decades**: Distribution by decade (implicit in constraints)
 
 ## 🚀 Production
 
 ### Build
+
 ```bash
 npm run build
 ```
 
 ### Start
+
 ```bash
 npm start
 ```
 
-### Variables d'environnement
-Aucune variable d'environnement n'est requise pour le fonctionnement de base. La base de données SQLite est locale.
+### Environment Variables
 
-## 📝 Licence
+No environment variables are required for basic operation. The SQLite database is local.
 
-Ce projet est à usage éducatif uniquement.
+## 📝 License
 
-## 🤝 Contribution
+This project is for educational use only.
 
-Les contributions sont les bienvenues ! N'hésitez pas à ouvrir des issues ou des pull requests.
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or pull requests.
 
 ## 📧 Support
 
-Pour toute question ou problème, consultez les logs serveur ou ouvrez une issue sur le repository.
+For any questions or issues, check the server logs or open an issue on the repository.
 
 ---
 
-**Bon jeu responsable ! 🍀**
+**Play responsibly! 🍀**

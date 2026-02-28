@@ -31,7 +31,7 @@ export default function AnalysisPage() {
     try {
       const response = await fetch(`/api/stats?${params}`)
       if (!response.ok) throw new Error('Failed to fetch stats')
-      
+
       const data = await response.json()
       setStats(data.stats)
     } catch (err) {
@@ -48,69 +48,67 @@ export default function AnalysisPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8 text-primary-700">Analyse statistique</h1>
+    <div className="container mx-auto px-4 py-8 animate-fade-in">
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2">
+            Analyse <span className="text-emerald-400 font-light">&</span> Statistiques
+          </h1>
+          <p className="text-slate-400 text-lg">Visualisez et étudiez le comportement des numéros au fil du temps.</p>
+        </div>
+      </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-8">
-        <h2 className="text-xl font-bold mb-4">Fenêtre de données</h2>
-        <div className="flex flex-wrap gap-3 mb-4">
-          <button
-            onClick={() => setWindow('all')}
-            className={`px-4 py-2 rounded-lg transition ${
-              window === 'all' ? 'bg-primary-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-          >
-            Tout (2412)
-          </button>
-          <button
-            onClick={() => setWindow('1000')}
-            className={`px-4 py-2 rounded-lg transition ${
-              window === '1000' ? 'bg-primary-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-          >
-            1000 derniers
-          </button>
-          <button
-            onClick={() => setWindow('200')}
-            className={`px-4 py-2 rounded-lg transition ${
-              window === '200' ? 'bg-primary-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-          >
-            200 derniers
-          </button>
-          <button
-            onClick={() => setWindow('custom')}
-            className={`px-4 py-2 rounded-lg transition ${
-              window === 'custom' ? 'bg-primary-600 text-white' : 'bg-gray-200 hover:bg-gray-300'
-            }`}
-          >
-            Personnalisé
-          </button>
+      <div className="glass-panel rounded-2xl p-6 md:p-8 mb-10 relative overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2 relative z-10">
+          <span className="text-emerald-400">⏱️</span> Fenêtre de données
+        </h2>
+
+        <div className="flex flex-wrap gap-4 mb-6 relative z-10">
+          {[
+            { id: 'all', label: 'Tout (2412)' },
+            { id: '1000', label: '1000 derniers' },
+            { id: '200', label: '200 derniers' },
+            { id: 'custom', label: 'Personnalisé' }
+          ].map((btn) => (
+            <button
+              key={btn.id}
+              onClick={() => setWindow(btn.id as any)}
+              className={`px-6 py-3 rounded-xl transition-all font-medium ${window === btn.id
+                  ? 'bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)]'
+                  : 'bg-dark-900/50 border border-white/10 text-slate-300 hover:bg-white/10 hover:text-white'
+                }`}
+            >
+              {btn.label}
+            </button>
+          ))}
         </div>
 
         {window === 'custom' && (
-          <div className="flex gap-3 items-end">
-            <div>
-              <label className="block text-sm font-medium mb-2">Date début</label>
+          <div className="flex flex-col sm:flex-row gap-4 items-end relative z-10 animate-slide-up">
+            <div className="w-full sm:w-auto">
+              <label className="block text-sm font-medium text-slate-300 mb-2">Date début</label>
               <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-3 bg-dark-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white transition-all [color-scheme:dark]"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Date fin</label>
+            <div className="w-full sm:w-auto">
+              <label className="block text-sm font-medium text-slate-300 mb-2">Date fin</label>
               <input
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                className="w-full px-4 py-3 bg-dark-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white transition-all [color-scheme:dark]"
               />
             </div>
             <button
               onClick={handleCustomFetch}
-              className="bg-primary-600 text-white px-6 py-2 rounded-lg hover:bg-primary-700 transition"
+              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-xl transition-all shadow-lg hover:shadow-emerald-500/25 font-semibold"
             >
               Analyser
             </button>
@@ -119,168 +117,191 @@ export default function AnalysisPage() {
       </div>
 
       {loading && (
-        <div className="text-center py-12">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-          <p className="mt-4 text-gray-600">Analyse en cours...</p>
+        <div className="text-center py-20 animate-pulse">
+          <div className="inline-block h-16 w-16 border-4 border-white/10 border-t-emerald-500 rounded-full animate-spin"></div>
+          <p className="mt-6 text-slate-400 font-medium tracking-widest uppercase">Analyse en cours...</p>
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <p className="text-red-800">❌ {error}</p>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 mb-8 flex items-center gap-4">
+          <span className="text-red-400 text-2xl">❌</span>
+          <p className="text-red-400 font-medium">{error}</p>
         </div>
       )}
 
       {!loading && stats && (
-        <div className="space-y-8">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Vue d&apos;ensemble</h2>
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="bg-primary-50 p-4 rounded-lg">
-                <p className="text-sm text-primary-600 font-medium">Total tirages</p>
-                <p className="text-3xl font-bold text-primary-800">{stats.totalDraws}</p>
+        <div className="space-y-8 animate-slide-up">
+
+          {/* VUE D'ENSEMBLE */}
+          <div className="glass rounded-3xl p-8 border border-white/5">
+            <h2 className="text-2xl font-bold text-white mb-6">Vue d&apos;ensemble</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-indigo-500/20 to-indigo-600/5 border border-indigo-500/20 p-6 rounded-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-all"></div>
+                <p className="text-sm text-indigo-300 font-semibold uppercase tracking-wider mb-2">Total tirages</p>
+                <p className="text-4xl font-extrabold text-white">{stats.totalDraws}</p>
               </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-sm text-green-600 font-medium">Somme P10</p>
-                <p className="text-3xl font-bold text-green-800">{stats.sumPercentiles.p10}</p>
+              <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border border-emerald-500/20 p-6 rounded-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
+                <p className="text-sm text-emerald-300 font-semibold uppercase tracking-wider mb-2">Somme P10</p>
+                <p className="text-4xl font-extrabold text-white">{stats.sumPercentiles.p10}</p>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-600 font-medium">Somme P90</p>
-                <p className="text-3xl font-bold text-blue-800">{stats.sumPercentiles.p90}</p>
+              <div className="bg-gradient-to-br from-rose-500/20 to-rose-600/5 border border-rose-500/20 p-6 rounded-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all"></div>
+                <p className="text-sm text-rose-300 font-semibold uppercase tracking-wider mb-2">Somme P90</p>
+                <p className="text-4xl font-extrabold text-white">{stats.sumPercentiles.p90}</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Fréquences des numéros (1-49)</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={stats.numberFrequencies}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="number" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#2563eb" name="Occurrences" />
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="mt-4 grid grid-cols-7 gap-2">
-              {stats.numberFrequencies.slice(0, 49).map((nf) => (
-                <div key={nf.number} className="text-center p-2 bg-gray-50 rounded">
-                  <div className="font-bold text-primary-700">{nf.number}</div>
-                  <div className="text-xs text-gray-600">{nf.count}</div>
-                </div>
-              ))}
+          {/* FREQUENCES NUMEROS */}
+          <div className="glass rounded-3xl p-8 border border-white/5">
+            <h2 className="text-2xl font-bold text-white mb-8">Fréquences des numéros</h2>
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.numberFrequencies}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                  <XAxis dataKey="number" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.6)' }} />
+                  <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.6)' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
+                    itemStyle={{ color: '#38bdf8' }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="count" fill="url(#blueGradient)" name="Occurrences" radius={[4, 4, 0, 0]} />
+                  <defs>
+                    <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#3b82f6" />
+                      <stop offset="100%" stopColor="#1d4ed8" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Fréquences Chance (1-10)</h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={stats.chanceFrequencies}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="number" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#eab308" name="Occurrences" />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* FREQUENCES CHANCE */}
+          <div className="glass rounded-3xl p-8 border border-white/5">
+            <h2 className="text-2xl font-bold text-white mb-8">Fréquences Numéro Chance</h2>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.chanceFrequencies}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                  <XAxis dataKey="number" stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.6)' }} />
+                  <YAxis stroke="rgba(255,255,255,0.5)" tick={{ fill: 'rgba(255,255,255,0.6)' }} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
+                    itemStyle={{ color: '#fbbf24' }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="count" fill="url(#goldGradient)" name="Occurrences" radius={[4, 4, 0, 0]} />
+                  <defs>
+                    <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f59e0b" />
+                      <stop offset="100%" stopColor="#b45309" />
+                    </linearGradient>
+                  </defs>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Distribution Pair/Impair</h2>
-            <div className="space-y-2">
-              {stats.evenOddDistribution.slice(0, 10).map((dist, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-32 font-medium">
-                    {dist.even} pair / {dist.odd} impair
-                  </div>
-                  <div className="flex-1 bg-gray-200 rounded-full h-6">
-                    <div
-                      className="bg-primary-600 h-6 rounded-full flex items-center justify-end pr-2 text-white text-sm"
-                      style={{ width: `${(dist.count / stats.totalDraws) * 100}%` }}
-                    >
-                      {dist.count}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* DISTRIBUTION PAIR/IMPAIR */}
+            <div className="glass rounded-3xl p-8 border border-white/5">
+              <h2 className="text-2xl font-bold text-white mb-6">Pair / Impair</h2>
+              <div className="space-y-5">
+                {stats.evenOddDistribution.slice(0, 5).map((dist, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-40 text-slate-300 font-medium text-sm">
+                      <span className="text-white">{dist.even}</span> pair / <span className="text-white">{dist.odd}</span> impair
+                    </div>
+                    <div className="flex-1 bg-dark-900/50 rounded-full h-8 border border-white/5 overflow-hidden relative">
+                      <div
+                        className="bg-gradient-to-r from-blue-600 to-cyan-400 h-full flex items-center justify-end pr-3 text-white text-xs font-bold rounded-full shadow-[0_0_10px_rgba(34,211,238,0.3)] transition-all duration-1000"
+                        style={{ width: `${Math.max((dist.count / stats.totalDraws) * 100, 15)}%` }}
+                      >
+                        {dist.count}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Distribution Bas/Haut (1-24 / 25-49)</h2>
-            <div className="space-y-2">
-              {stats.lowHighDistribution.slice(0, 10).map((dist, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-32 font-medium">
-                    {dist.low} bas / {dist.high} haut
-                  </div>
-                  <div className="flex-1 bg-gray-200 rounded-full h-6">
-                    <div
-                      className="bg-green-600 h-6 rounded-full flex items-center justify-end pr-2 text-white text-sm"
-                      style={{ width: `${(dist.count / stats.totalDraws) * 100}%` }}
-                    >
-                      {dist.count}
+            {/* DISTRIBUTION BAS/HAUT */}
+            <div className="glass rounded-3xl p-8 border border-white/5">
+              <h2 className="text-2xl font-bold text-white mb-6">Bas / Haut (1-24 / 25-49)</h2>
+              <div className="space-y-5">
+                {stats.lowHighDistribution.slice(0, 5).map((dist, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-40 text-slate-300 font-medium text-sm">
+                      <span className="text-white">{dist.low}</span> bas / <span className="text-white">{dist.high}</span> haut
+                    </div>
+                    <div className="flex-1 bg-dark-900/50 rounded-full h-8 border border-white/5 overflow-hidden relative">
+                      <div
+                        className="bg-gradient-to-r from-emerald-600 to-teal-400 h-full flex items-center justify-end pr-3 text-white text-xs font-bold rounded-full shadow-[0_0_10px_rgba(45,212,191,0.3)] transition-all duration-1000"
+                        style={{ width: `${Math.max((dist.count / stats.totalDraws) * 100, 15)}%` }}
+                      >
+                        {dist.count}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Numéros ≥31 par tirage</h2>
-            <p className="mb-4 text-gray-600">
-              Tirages contenant au moins un numéro ≥31: <strong>{stats.drawsWithHighNumbers}</strong> ({((stats.drawsWithHighNumbers / stats.totalDraws) * 100).toFixed(1)}%)
-            </p>
-            <div className="space-y-2">
-              {stats.highNumberDistribution.map((dist) => (
-                <div key={dist.count} className="flex items-center gap-4">
-                  <div className="w-32 font-medium">{dist.count} numéro(s)</div>
-                  <div className="flex-1 bg-gray-200 rounded-full h-6">
-                    <div
-                      className="bg-orange-600 h-6 rounded-full flex items-center justify-end pr-2 text-white text-sm"
-                      style={{ width: `${(dist.frequency / stats.totalDraws) * 100}%` }}
-                    >
-                      {dist.frequency}
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* GAPS */}
+            <div className="glass rounded-3xl p-8 border border-white/5">
+              <h2 className="text-2xl font-bold text-white mb-6">Écarts actuels (Gaps)</h2>
+              <p className="text-sm text-slate-400 mb-6">Nombre de tirages depuis la dernière sortie du numéro.</p>
+              <div className="grid grid-cols-7 gap-2">
+                {stats.currentGaps.slice(0, 49).map((gap) => (
+                  <div
+                    key={gap.number}
+                    className={`text-center py-2 rounded-lg border ${gap.gap > 50
+                        ? 'bg-rose-500/20 border-rose-500/50 text-rose-300'
+                        : gap.gap > 30
+                          ? 'bg-orange-500/20 border-orange-500/50 text-orange-300'
+                          : 'bg-dark-900/50 border-white/5 text-slate-300'
+                      } transition-colors hover:bg-white/10`}
+                  >
+                    <div className="font-bold">{gap.number}</div>
+                    <div className="text-[10px] opacity-80 mt-1">{gap.gap}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* TOP PAIRES */}
+            <div className="glass rounded-3xl p-8 border border-white/5">
+              <h2 className="text-2xl font-bold text-white mb-6">Top Paires & Affinités</h2>
+              <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                {stats.topPairs.slice(0, 15).map((pair, i) => (
+                  <div key={i} className="flex items-center justify-between bg-dark-900/50 border border-white/5 p-4 rounded-xl hover:bg-white/5 transition-colors group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary-900/50 border border-primary-500/30 flex items-center justify-center font-bold text-white shadow-inner">
+                        {pair.pair[0]}
+                      </div>
+                      <span className="text-slate-500 font-bold px-1">+</span>
+                      <div className="w-10 h-10 rounded-full bg-primary-900/50 border border-primary-500/30 flex items-center justify-center font-bold text-white shadow-inner">
+                        {pair.pair[1]}
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <div className="text-primary-400 font-bold text-xl group-hover:text-primary-300 transition-colors">
+                        {pair.count} <span className="text-sm font-normal text-slate-500">fois</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Gaps actuels (tirages depuis dernière sortie)</h2>
-            <div className="grid grid-cols-7 gap-2">
-              {stats.currentGaps.slice(0, 49).map((gap) => (
-                <div
-                  key={gap.number}
-                  className={`text-center p-2 rounded ${
-                    gap.gap > 50 ? 'bg-red-100 border border-red-300' : 'bg-gray-50'
-                  }`}
-                >
-                  <div className="font-bold text-primary-700">{gap.number}</div>
-                  <div className="text-xs text-gray-600">{gap.gap}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold mb-4">Top 20 paires fréquentes</h2>
-            <div className="grid md:grid-cols-2 gap-3">
-              {stats.topPairs.map((pair, i) => (
-                <div key={i} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
-                  <div className="font-medium">
-                    {pair.pair[0]} - {pair.pair[1]}
-                  </div>
-                  <div className="text-primary-700 font-bold">{pair.count}</div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       )}
     </div>

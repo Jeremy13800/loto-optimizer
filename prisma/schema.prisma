@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Draw {
+  id          String   @id
+  dateISO     String
+  dateLabel   String
+  nums        String
+  chance      Int
+  source      String   @default("ReducMiz")
+  rawDateText String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dateISO])
+  @@index([chance])
+}

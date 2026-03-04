@@ -110,7 +110,11 @@ export interface GenerateConstraints {
   maxConsecutive?: number;
   minRange?: number;
   minHighNumbers?: number;
-  maxMultiplesOf5?: number;
+  maxMultiplesOf3?: number;
+  minVeryHighNumbers?: number;
+  maxVeryHighNumbers?: number;
+  minDecadeSpread?: number;
+  maxDecadeSpread?: number;
   avoidPopular?: number[];
   avoidChances?: number[];
   maxOverlap?: number;

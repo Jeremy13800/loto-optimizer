@@ -25,14 +25,18 @@ export default function GeneratorPage() {
   const [maxPerDecade, setMaxPerDecade] = useState(2);
   const [minRange, setMinRange] = useState(25);
   const [minHighNumbers, setMinHighNumbers] = useState(2);
-  const [maxMultiplesOf5, setMaxMultiplesOf5] = useState(1);
+  const [maxMultiplesOf3, setMaxMultiplesOf3] = useState(2);
   const [avoidPopular, setAvoidPopular] = useState("");
   const [avoidChances, setAvoidChances] = useState("");
   const [maxOverlap, setMaxOverlap] = useState(1);
 
   // Advanced parameters
-  const [minPrimes, setMinPrimes] = useState(2);
-  const [maxPrimes, setMaxPrimes] = useState(3);
+  const [minPrimes, setMinPrimes] = useState(1);
+  const [maxPrimes, setMaxPrimes] = useState(2);
+  const [minDecadeSpread, setMinDecadeSpread] = useState(3);
+  const [maxDecadeSpread, setMaxDecadeSpread] = useState(4);
+  const [minVeryHighNumbers, setMinVeryHighNumbers] = useState(0);
+  const [maxVeryHighNumbers, setMaxVeryHighNumbers] = useState(2);
   const [minHotNumbers, setMinHotNumbers] = useState(1);
   const [maxHotNumbers, setMaxHotNumbers] = useState(2);
   const [minColdNumbers, setMinColdNumbers] = useState(0);
@@ -60,7 +64,7 @@ export default function GeneratorPage() {
       maxPerDecade,
       minRange,
       minHighNumbers,
-      maxMultiplesOf5,
+      maxMultiplesOf3,
       maxOverlap,
     };
 
@@ -71,6 +75,12 @@ export default function GeneratorPage() {
     if (showAdvanced) {
       if (minPrimes > 0) constraints.minPrimes = minPrimes;
       if (maxPrimes > 0) constraints.maxPrimes = maxPrimes;
+      if (minDecadeSpread > 0) constraints.minDecadeSpread = minDecadeSpread;
+      if (maxDecadeSpread > 0) constraints.maxDecadeSpread = maxDecadeSpread;
+      if (minVeryHighNumbers > 0)
+        constraints.minVeryHighNumbers = minVeryHighNumbers;
+      if (maxVeryHighNumbers > 0)
+        constraints.maxVeryHighNumbers = maxVeryHighNumbers;
       if (minHotNumbers > 0) constraints.minHotNumbers = minHotNumbers;
       if (maxHotNumbers > 0) constraints.maxHotNumbers = maxHotNumbers;
       if (minColdNumbers >= 0) constraints.minColdNumbers = minColdNumbers;
@@ -407,15 +417,15 @@ export default function GeneratorPage() {
               </div>
               <div>
                 <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
-                  Max. multiples de 5
-                  <Tooltip text="Nombre maximum de multiples de 5 (5, 10, 15, 20, etc.) autorisés. Les multiples de 5 sont statistiquement moins fréquents. Recommandé : 1 maximum." />
+                  Max. multiples de 3
+                  <Tooltip text="Nombre maximum de multiples de 3 (3, 6, 9, 12, etc.) autorisés. Basé sur l'analyse : 34.4% des tirages ont exactement 1 multiple de 3. Recommandé : 2 maximum." />
                 </label>
                 <input
                   type="number"
                   min="0"
                   max="5"
-                  value={maxMultiplesOf5}
-                  onChange={(e) => setMaxMultiplesOf5(parseInt(e.target.value))}
+                  value={maxMultiplesOf3}
+                  onChange={(e) => setMaxMultiplesOf3(parseInt(e.target.value))}
                   className="w-full px-4 py-3 bg-dark-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-emerald-500 text-white"
                 />
               </div>
@@ -513,6 +523,96 @@ export default function GeneratorPage() {
                         value={maxPrimes}
                         onChange={(e) => setMaxPrimes(parseInt(e.target.value))}
                         className="w-full px-4 py-3 bg-dark-900/60 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-purple-500 text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Répartition par Dizaine (NOUVEAU - Basé sur analyse) */}
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-6">
+                  <h4 className="text-md font-bold text-emerald-300 mb-4 flex items-center gap-2">
+                    <span>📊</span> Répartition par Dizaine (NOUVEAU)
+                  </h4>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Basé sur l'analyse : 44.6% des tirages couvrent exactement 3
+                    dizaines différentes
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Min. dizaines différentes
+                        <Tooltip text="Nombre minimum de dizaines (1-10, 11-20, 21-30, 31-40, 41-49) à couvrir. Analyse : 44.6% des tirages couvrent 3 dizaines. Recommandé : 3." />
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={minDecadeSpread}
+                        onChange={(e) =>
+                          setMinDecadeSpread(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-emerald-500/30 rounded-xl focus:ring-2 focus:ring-emerald-500 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Max. dizaines différentes
+                        <Tooltip text="Nombre maximum de dizaines différentes. Une bonne répartition assure une couverture équilibrée. Recommandé : 4." />
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={maxDecadeSpread}
+                        onChange={(e) =>
+                          setMaxDecadeSpread(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-emerald-500/30 rounded-xl focus:ring-2 focus:ring-emerald-500 text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Numéros Très Hauts (NOUVEAU - Basé sur analyse) */}
+                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-xl p-6">
+                  <h4 className="text-md font-bold text-cyan-300 mb-4 flex items-center gap-2">
+                    <span>🔝</span> Numéros Très Hauts ≥40 (NOUVEAU)
+                  </h4>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Basé sur l'analyse : 43.2% des tirages ont exactement 1
+                    numéro ≥40
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Min. numéros ≥40
+                        <Tooltip text="Nombre minimum de numéros très hauts (40-49). Analyse : 43.2% des tirages en ont exactement 1. Recommandé : 0 (pour flexibilité)." />
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="5"
+                        value={minVeryHighNumbers}
+                        onChange={(e) =>
+                          setMinVeryHighNumbers(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-cyan-500/30 rounded-xl focus:ring-2 focus:ring-cyan-500 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Max. numéros ≥40
+                        <Tooltip text="Nombre maximum de numéros très hauts autorisés. Analyse : 43.2% en ont 1, 22% en ont 2. Recommandé : 2." />
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="5"
+                        value={maxVeryHighNumbers}
+                        onChange={(e) =>
+                          setMaxVeryHighNumbers(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-cyan-500/30 rounded-xl focus:ring-2 focus:ring-cyan-500 text-white"
                       />
                     </div>
                   </div>

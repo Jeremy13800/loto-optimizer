@@ -226,6 +226,77 @@ function checkHardConstraints(
     }
   }
 
+  // Multiples of 3 constraint
+  if (constraints.maxMultiplesOf3 !== undefined) {
+    const mult3Count = nums.filter((n) => n % 3 === 0).length;
+    if (mult3Count > constraints.maxMultiplesOf3) {
+      return {
+        valid: false,
+        reason: `Too many multiples of 3 (${mult3Count} > ${constraints.maxMultiplesOf3})`,
+      };
+    }
+  }
+
+  // Decade spread constraint
+  if (
+    constraints.minDecadeSpread !== undefined ||
+    constraints.maxDecadeSpread !== undefined
+  ) {
+    const decades = new Set(
+      nums.map((n) => {
+        if (n <= 10) return 1;
+        if (n <= 20) return 2;
+        if (n <= 30) return 3;
+        if (n <= 40) return 4;
+        return 5;
+      }),
+    );
+    if (
+      constraints.minDecadeSpread !== undefined &&
+      decades.size < constraints.minDecadeSpread
+    ) {
+      return {
+        valid: false,
+        reason: `Not enough different decades (${decades.size} < ${constraints.minDecadeSpread})`,
+      };
+    }
+    if (
+      constraints.maxDecadeSpread !== undefined &&
+      decades.size > constraints.maxDecadeSpread
+    ) {
+      return {
+        valid: false,
+        reason: `Too many different decades (${decades.size} > ${constraints.maxDecadeSpread})`,
+      };
+    }
+  }
+
+  // Very high numbers (≥40) constraint
+  if (
+    constraints.minVeryHighNumbers !== undefined ||
+    constraints.maxVeryHighNumbers !== undefined
+  ) {
+    const veryHighCount = nums.filter((n) => n >= 40).length;
+    if (
+      constraints.minVeryHighNumbers !== undefined &&
+      veryHighCount < constraints.minVeryHighNumbers
+    ) {
+      return {
+        valid: false,
+        reason: `Not enough very high numbers (${veryHighCount} < ${constraints.minVeryHighNumbers})`,
+      };
+    }
+    if (
+      constraints.maxVeryHighNumbers !== undefined &&
+      veryHighCount > constraints.maxVeryHighNumbers
+    ) {
+      return {
+        valid: false,
+        reason: `Too many very high numbers (${veryHighCount} > ${constraints.maxVeryHighNumbers})`,
+      };
+    }
+  }
+
   if (
     constraints.minConsecutiveGap !== undefined ||
     constraints.maxConsecutiveGap !== undefined
@@ -316,12 +387,13 @@ function scoreCandidate(
     score -= (minHighNumbers - highNumbers.length) * 5;
   }
 
-  // Multiples of 5 optimization (existing)
-  const maxMultiplesOf5 = constraints.maxMultiplesOf5 ?? 1;
-  if (multiplesOf5.length <= maxMultiplesOf5) {
+  // Multiples of 3 optimization (new - based on analysis)
+  const multiplesOf3 = nums.filter((n) => n % 3 === 0);
+  const maxMultiplesOf3 = constraints.maxMultiplesOf3 ?? 2;
+  if (multiplesOf3.length <= maxMultiplesOf3) {
     score += 5;
   } else {
-    score -= (multiplesOf5.length - maxMultiplesOf5) * 10;
+    score -= (multiplesOf3.length - maxMultiplesOf3) * 10;
   }
 
   // Popular numbers penalty (existing)

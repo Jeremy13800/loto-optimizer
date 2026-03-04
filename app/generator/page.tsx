@@ -1,36 +1,56 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import NumberBadge from '@/components/NumberBadge'
-import { GenerateConstraints, GeneratedGrid } from '@/lib/types'
+import { useState } from "react";
+import NumberBadge from "@/components/NumberBadge";
+import Tooltip from "@/components/Tooltip";
+import { GenerateConstraints, GeneratedGrid } from "@/lib/types";
 
 export default function GeneratorPage() {
-  const [generating, setGenerating] = useState(false)
-  const [grids, setGrids] = useState<GeneratedGrid[]>([])
-  const [warnings, setWarnings] = useState<string[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const [genStats, setGenStats] = useState<any>(null)
+  const [generating, setGenerating] = useState(false);
+  const [grids, setGrids] = useState<GeneratedGrid[]>([]);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [genStats, setGenStats] = useState<any>(null);
 
-  const [count, setCount] = useState(5)
-  const [window, setWindow] = useState<'all' | '1000' | '200'>('all')
-  const [excludePrevious, setExcludePrevious] = useState(true)
-  const [excludePreviousChance, setExcludePreviousChance] = useState(false)
-  const [evenOddRatio, setEvenOddRatio] = useState<'2/3' | '3/2' | ''>('')
-  const [lowHighRatio, setLowHighRatio] = useState<'2/3' | '3/2' | ''>('')
-  const [maxPerDecade, setMaxPerDecade] = useState(2)
-  const [minRange, setMinRange] = useState(25)
-  const [minHighNumbers, setMinHighNumbers] = useState(2)
-  const [maxMultiplesOf5, setMaxMultiplesOf5] = useState(1)
-  const [avoidPopular, setAvoidPopular] = useState('')
-  const [avoidChances, setAvoidChances] = useState('')
-  const [maxOverlap, setMaxOverlap] = useState(1)
+  const [count, setCount] = useState(5);
+  const [window, setWindow] = useState<"all" | "1000" | "200">("all");
+  const [excludePrevious, setExcludePrevious] = useState(true);
+  const [excludePreviousChance, setExcludePreviousChance] = useState(false);
+  const [evenOddRatio, setEvenOddRatio] = useState<
+    "1/4" | "2/3" | "3/2" | "4/1" | ""
+  >("");
+  const [lowHighRatio, setLowHighRatio] = useState<
+    "1/4" | "2/3" | "3/2" | "4/1" | ""
+  >("");
+  const [maxPerDecade, setMaxPerDecade] = useState(2);
+  const [minRange, setMinRange] = useState(25);
+  const [minHighNumbers, setMinHighNumbers] = useState(2);
+  const [maxMultiplesOf5, setMaxMultiplesOf5] = useState(1);
+  const [avoidPopular, setAvoidPopular] = useState("");
+  const [avoidChances, setAvoidChances] = useState("");
+  const [maxOverlap, setMaxOverlap] = useState(1);
+
+  // Advanced parameters
+  const [minPrimes, setMinPrimes] = useState(2);
+  const [maxPrimes, setMaxPrimes] = useState(3);
+  const [minHotNumbers, setMinHotNumbers] = useState(1);
+  const [maxHotNumbers, setMaxHotNumbers] = useState(2);
+  const [minColdNumbers, setMinColdNumbers] = useState(0);
+  const [maxColdNumbers, setMaxColdNumbers] = useState(2);
+  const [minDigitEndings, setMinDigitEndings] = useState(4);
+  const [favorTriplets, setFavorTriplets] = useState(true);
+  const [minConsecutiveGap, setMinConsecutiveGap] = useState(1);
+  const [maxConsecutiveGap, setMaxConsecutiveGap] = useState(15);
+  const [targetSumMin, setTargetSumMin] = useState(0);
+  const [targetSumMax, setTargetSumMax] = useState(0);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const handleGenerate = async () => {
-    setGenerating(true)
-    setError(null)
-    setWarnings([])
-    setGrids([])
-    setGenStats(null)
+    setGenerating(true);
+    setError(null);
+    setWarnings([]);
+    setGrids([]);
+    setGenStats(null);
 
     const constraints: GenerateConstraints = {
       window: { window },
@@ -42,53 +62,90 @@ export default function GeneratorPage() {
       minHighNumbers,
       maxMultiplesOf5,
       maxOverlap,
+    };
+
+    if (evenOddRatio) constraints.evenOddRatio = evenOddRatio;
+    if (lowHighRatio) constraints.lowHighRatio = lowHighRatio;
+
+    // Advanced constraints
+    if (showAdvanced) {
+      if (minPrimes > 0) constraints.minPrimes = minPrimes;
+      if (maxPrimes > 0) constraints.maxPrimes = maxPrimes;
+      if (minHotNumbers > 0) constraints.minHotNumbers = minHotNumbers;
+      if (maxHotNumbers > 0) constraints.maxHotNumbers = maxHotNumbers;
+      if (minColdNumbers >= 0) constraints.minColdNumbers = minColdNumbers;
+      if (maxColdNumbers > 0) constraints.maxColdNumbers = maxColdNumbers;
+      if (minDigitEndings > 0) constraints.minDigitEndings = minDigitEndings;
+      if (favorTriplets) constraints.favorTriplets = favorTriplets;
+      if (minConsecutiveGap > 0)
+        constraints.minConsecutiveGap = minConsecutiveGap;
+      if (maxConsecutiveGap > 0)
+        constraints.maxConsecutiveGap = maxConsecutiveGap;
+      if (targetSumMin > 0) constraints.targetSumMin = targetSumMin;
+      if (targetSumMax > 0) constraints.targetSumMax = targetSumMax;
     }
 
-    if (evenOddRatio) constraints.evenOddRatio = evenOddRatio
-    if (lowHighRatio) constraints.lowHighRatio = lowHighRatio
-
     if (avoidPopular.trim()) {
-      const nums = avoidPopular.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 49)
-      if (nums.length > 0) constraints.avoidPopular = nums
+      const nums = avoidPopular
+        .split(",")
+        .map((n) => parseInt(n.trim()))
+        .filter((n) => !isNaN(n) && n >= 1 && n <= 49);
+      if (nums.length > 0) constraints.avoidPopular = nums;
     }
 
     if (avoidChances.trim()) {
-      const chances = avoidChances.split(',').map(n => parseInt(n.trim())).filter(n => !isNaN(n) && n >= 1 && n <= 10)
-      if (chances.length > 0) constraints.avoidChances = chances
+      const chances = avoidChances
+        .split(",")
+        .map((n) => parseInt(n.trim()))
+        .filter((n) => !isNaN(n) && n >= 1 && n <= 10);
+      if (chances.length > 0) constraints.avoidChances = chances;
     }
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(constraints),
-      })
+      });
 
       if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to generate grids')
+        const data = await response.json();
+        throw new Error(data.error || "Failed to generate grids");
       }
 
-      const data = await response.json()
-      setGrids(data.grids)
-      setWarnings(data.warnings || [])
-      setGenStats(data.stats)
+      const data = await response.json();
+      setGrids(data.grids);
+      setWarnings(data.warnings || []);
+      setGenStats(data.stats);
 
       // Scroll to results slightly
       setTimeout(() => {
-        document.getElementById('results-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }, 100)
+        document
+          .getElementById("results-section")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error')
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
-      setGenerating(false)
+      setGenerating(false);
     }
-  }
+  };
 
   const exportCSV = () => {
-    if (grids.length === 0) return
+    if (grids.length === 0) return;
 
-    const headers = ['Grille', 'N1', 'N2', 'N3', 'N4', 'N5', 'Chance', 'Score', 'Somme', 'Amplitude']
+    const headers = [
+      "Grille",
+      "N1",
+      "N2",
+      "N3",
+      "N4",
+      "N5",
+      "Chance",
+      "Score",
+      "Somme",
+      "Amplitude",
+    ];
     const rows = grids.map((grid, i) => [
       i + 1,
       ...grid.nums,
@@ -96,36 +153,44 @@ export default function GeneratorPage() {
       grid.score.toFixed(1),
       grid.metadata.sum,
       grid.metadata.range,
-    ])
+    ]);
 
-    const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `loto-grids-${new Date().toISOString().split('T')[0]}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
-  }
+    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `loto-grids-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in relative z-10">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight mb-2">
-            Générateur <span className="text-purple-400 font-light">&</span> Optimiseur
+            Générateur <span className="text-purple-400 font-light">&</span>{" "}
+            Optimiseur
           </h1>
-          <p className="text-slate-400 text-lg">Création intelligente de grilles basées sur des algorithmes statistiques.</p>
+          <p className="text-slate-400 text-lg">
+            Création intelligente de grilles basées sur des algorithmes
+            statistiques.
+          </p>
         </div>
       </div>
 
       <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-6 mb-10 flex items-start gap-4 shadow-[0_0_30px_rgba(234,179,8,0.1)]">
         <span className="text-2xl mt-1">⚠️</span>
         <div>
-          <p className="text-yellow-400 font-bold mb-1">Avertissement Légal & Statistique</p>
+          <p className="text-yellow-400 font-bold mb-1">
+            Avertissement Légal & Statistique
+          </p>
           <p className="text-yellow-200/70 text-sm leading-relaxed">
-            Ce générateur utilise des contraintes statistiques historiques pour filtrer et optimiser la création de grilles.
-            Cependant, chaque tirage du Loto reste un événement mathématiquement indépendant et totalement aléatoire.
+            Ce générateur utilise des contraintes statistiques historiques pour
+            filtrer et optimiser la création de grilles. Cependant, chaque
+            tirage du Loto reste un événement mathématiquement indépendant et
+            totalement aléatoire.
             <strong>Aucune méthode ne peut garantir un gain.</strong>
           </p>
         </div>
@@ -136,15 +201,20 @@ export default function GeneratorPage() {
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
 
         <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
-          <span className="p-2 bg-purple-500/20 rounded-lg text-purple-400">⚙️</span> Configuration de l&apos;algorithme
+          <span className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
+            ⚙️
+          </span>{" "}
+          Configuration de l&apos;algorithme
         </h2>
 
         <div className="space-y-8 relative z-10">
-
           {/* Section 1: Base */}
           <div className="grid md:grid-cols-2 gap-8">
             <div className="bg-dark-900/40 p-6 rounded-2xl border border-white/5">
-              <label className="block text-sm font-bold text-purple-300 mb-3 uppercase tracking-wider">Nombre de grilles</label>
+              <label className="flex items-center gap-2 text-sm font-bold text-purple-300 mb-3 uppercase tracking-wider">
+                Nombre de grilles
+                <Tooltip text="Nombre de grilles optimisées à générer. Plus vous en générez, plus vous augmentez vos chances de couverture, mais le coût augmente proportionnellement." />
+              </label>
               <div className="flex items-center gap-4">
                 <input
                   type="range"
@@ -161,20 +231,24 @@ export default function GeneratorPage() {
             </div>
 
             <div className="bg-dark-900/40 p-6 rounded-2xl border border-white/5">
-              <label className="block text-sm font-bold text-purple-300 mb-3 uppercase tracking-wider">Base d&apos;apprentissage</label>
+              <label className="flex items-center gap-2 text-sm font-bold text-purple-300 mb-3 uppercase tracking-wider">
+                Base d&apos;apprentissage
+                <Tooltip text="Fenêtre de données utilisée pour calculer les statistiques. 'Historique Complet' utilise tous les tirages, '1000 Derniers' se concentre sur les tendances récentes, '200 Derniers' sur les tendances très récentes." />
+              </label>
               <div className="flex bg-dark-900 rounded-xl p-1 border border-white/5">
                 {[
-                  { id: 'all', label: 'Historique Complet' },
-                  { id: '1000', label: '1000 Derniers' },
-                  { id: '200', label: '200 Derniers' }
+                  { id: "all", label: "Historique Complet" },
+                  { id: "1000", label: "1000 Derniers" },
+                  { id: "200", label: "200 Derniers" },
                 ].map((opt) => (
                   <button
                     key={opt.id}
                     onClick={() => setWindow(opt.id as any)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${window === opt.id
-                        ? 'bg-purple-600/80 text-white shadow-md'
-                        : 'text-slate-400 hover:text-white hover:bg-white/5'
-                      }`}
+                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                      window === opt.id
+                        ? "bg-purple-600/80 text-white shadow-md"
+                        : "text-slate-400 hover:text-white hover:bg-white/5"
+                    }`}
                   >
                     {opt.label}
                   </button>
@@ -186,12 +260,16 @@ export default function GeneratorPage() {
           {/* Section 2: Contraintes Dures */}
           <div className="border-t border-white/10 pt-8">
             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-rose-500 rounded-full"></span> Contraintes Strictes
+              <span className="w-2 h-6 bg-rose-500 rounded-full"></span>{" "}
+              Contraintes Strictes
             </h3>
 
             <div className="grid md:grid-cols-2 gap-6 mb-6">
               <label className="flex items-center justify-between bg-dark-900/40 p-4 rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-colors group">
-                <span className="font-medium text-slate-300 group-hover:text-white transition-colors">Exclure numéros du tirage précédent</span>
+                <span className="flex items-center gap-2 font-medium text-slate-300 group-hover:text-white transition-colors">
+                  Exclure numéros du tirage précédent
+                  <Tooltip text="Empêche la génération de grilles contenant des numéros qui sont sortis lors du dernier tirage. Basé sur le principe que les mêmes numéros sortent rarement deux fois de suite." />
+                </span>
                 <div className="relative">
                   <input
                     type="checkbox"
@@ -199,13 +277,20 @@ export default function GeneratorPage() {
                     onChange={(e) => setExcludePrevious(e.target.checked)}
                     className="sr-only"
                   />
-                  <div className={`block w-14 h-8 rounded-full transition-colors ${excludePrevious ? 'bg-primary-500' : 'bg-dark-900'}`}></div>
-                  <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${excludePrevious ? 'transform translate-x-6' : ''}`}></div>
+                  <div
+                    className={`block w-14 h-8 rounded-full transition-colors ${excludePrevious ? "bg-primary-500" : "bg-dark-900"}`}
+                  ></div>
+                  <div
+                    className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${excludePrevious ? "transform translate-x-6" : ""}`}
+                  ></div>
                 </div>
               </label>
 
               <label className="flex items-center justify-between bg-dark-900/40 p-4 rounded-xl border border-white/5 cursor-pointer hover:bg-white/5 transition-colors group">
-                <span className="font-medium text-slate-300 group-hover:text-white transition-colors">Exclure Chance précédente</span>
+                <span className="flex items-center gap-2 font-medium text-slate-300 group-hover:text-white transition-colors">
+                  Exclure Numéro Chance précédent
+                  <Tooltip text="Empêche la génération du même numéro chance que celui du dernier tirage. Augmente la diversité de vos grilles." />
+                </span>
                 <div className="relative">
                   <input
                     type="checkbox"
@@ -213,41 +298,58 @@ export default function GeneratorPage() {
                     onChange={(e) => setExcludePreviousChance(e.target.checked)}
                     className="sr-only"
                   />
-                  <div className={`block w-14 h-8 rounded-full transition-colors ${excludePreviousChance ? 'bg-primary-500' : 'bg-dark-900'}`}></div>
-                  <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${excludePreviousChance ? 'transform translate-x-6' : ''}`}></div>
+                  <div
+                    className={`block w-14 h-8 rounded-full transition-colors ${excludePreviousChance ? "bg-primary-500" : "bg-dark-900"}`}
+                  ></div>
+                  <div
+                    className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${excludePreviousChance ? "transform translate-x-6" : ""}`}
+                  ></div>
                 </div>
               </label>
             </div>
 
             <div className="grid md:grid-cols-4 gap-6">
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-400 mb-2">Ratio Pair / Impair</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Ratio Pair / Impair
+                  <Tooltip text="Impose un ratio spécifique de numéros pairs et impairs. Historiquement, 2/3 et 3/2 sont les combinaisons les plus fréquentes (environ 60% des tirages)." />
+                </label>
                 <select
                   value={evenOddRatio}
                   onChange={(e) => setEvenOddRatio(e.target.value as any)}
                   className="w-full px-4 py-3 bg-dark-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary-500 text-white appearance-none"
                 >
                   <option value="">Naturel (Sans contrainte)</option>
+                  <option value="1/4">1 Pair / 4 Impairs</option>
                   <option value="2/3">2 Pairs / 3 Impairs (Fréquent)</option>
                   <option value="3/2">3 Pairs / 2 Impairs (Fréquent)</option>
+                  <option value="4/1">4 Pairs / 1 Impair</option>
                 </select>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-400 mb-2">Ratio Bas (1-24) / Haut (25-49)</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Ratio Bas (1-24) / Haut (25-49)
+                  <Tooltip text="Impose un ratio entre numéros bas (1-24) et hauts (25-49). Une bonne répartition assure une couverture équilibrée de toute la plage de numéros." />
+                </label>
                 <select
                   value={lowHighRatio}
                   onChange={(e) => setLowHighRatio(e.target.value as any)}
                   className="w-full px-4 py-3 bg-dark-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary-500 text-white appearance-none"
                 >
                   <option value="">Naturel (Sans contrainte)</option>
+                  <option value="1/4">1 Bas / 4 Hauts</option>
                   <option value="2/3">2 Bas / 3 Hauts</option>
                   <option value="3/2">3 Bas / 2 Hauts</option>
+                  <option value="4/1">4 Bas / 1 Haut</option>
                 </select>
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-400 mb-2">Max. numéros par dizaine</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Max. numéros par dizaine
+                  <Tooltip text="Limite le nombre de numéros dans une même dizaine (1-10, 11-20, etc.). Évite les grilles trop concentrées sur une seule tranche. Recommandé : 2 maximum." />
+                </label>
                 <input
                   type="number"
                   min="1"
@@ -259,7 +361,10 @@ export default function GeneratorPage() {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-slate-400 mb-2">Max. doublons entre grilles</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Max. overlap entre grilles
+                  <Tooltip text="Nombre maximum de numéros identiques autorisés entre deux grilles générées. Une valeur basse (0-1) assure une meilleure diversification de vos grilles." />
+                </label>
                 <input
                   type="number"
                   min="0"
@@ -270,17 +375,13 @@ export default function GeneratorPage() {
                 />
               </div>
             </div>
-          </div>
 
-          {/* Section 3: Contraintes d'Optimisation */}
-          <div className="border-t border-white/10 pt-8">
-            <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-              <span className="w-2 h-6 bg-emerald-500 rounded-full"></span> Optimisation Flexibles
-            </h3>
-
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Amplitude minimume</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Amplitude minimale
+                  <Tooltip text="Écart minimum entre le plus petit et le plus grand numéro de la grille. Une amplitude élevée (25+) assure une bonne répartition sur toute la plage 1-49." />
+                </label>
                 <input
                   type="number"
                   min="10"
@@ -291,7 +392,10 @@ export default function GeneratorPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Qte Min. numéros ≥ 31</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Qte Min. numéros ≥ 31
+                  <Tooltip text="Nombre minimum de numéros élevés (31-49) dans la grille. Assure une présence de numéros hauts. Recommandé : 2 minimum." />
+                </label>
                 <input
                   type="number"
                   min="0"
@@ -302,7 +406,10 @@ export default function GeneratorPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Max. multiples de 5</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Max. multiples de 5
+                  <Tooltip text="Nombre maximum de multiples de 5 (5, 10, 15, 20, etc.) autorisés. Les multiples de 5 sont statistiquement moins fréquents. Recommandé : 1 maximum." />
+                </label>
                 <input
                   type="number"
                   min="0"
@@ -316,7 +423,10 @@ export default function GeneratorPage() {
 
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Éviter numéros exacts (CSV)</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Éviter numéros exacts
+                  <Tooltip text="Liste de numéros à exclure complètement des grilles générées. Format : numéros séparés par des virgules (ex: 7, 13, 21). Utile pour éviter vos numéros 'malchanceux'." />
+                </label>
                 <input
                   type="text"
                   value={avoidPopular}
@@ -326,7 +436,10 @@ export default function GeneratorPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">Éviter N° Chance exacts (CSV)</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                  Éviter N° Chance exacts
+                  <Tooltip text="Liste de numéros chance (1-10) à exclure. Format : numéros séparés par des virgules (ex: 1, 7, 9)." />
+                </label>
                 <input
                   type="text"
                   value={avoidChances}
@@ -336,6 +449,305 @@ export default function GeneratorPage() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Section 4: Paramètres Avancés */}
+          <div className="border-t border-white/10 pt-8">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="w-full flex items-center justify-between bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border border-indigo-500/30 p-5 rounded-xl hover:from-indigo-600/30 hover:to-purple-600/30 transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">⚡</span>
+                <div className="text-left">
+                  <h3 className="text-lg font-bold text-white">
+                    Paramètres Avancés
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    Optimisation basée sur toutes les analyses statistiques
+                  </p>
+                </div>
+              </div>
+              <span
+                className={`text-white text-2xl transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+              >
+                ▼
+              </span>
+            </button>
+
+            {showAdvanced && (
+              <div className="mt-6 space-y-6 animate-slide-up">
+                {/* Nombres Premiers */}
+                <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6">
+                  <h4 className="text-md font-bold text-purple-300 mb-4 flex items-center gap-2">
+                    <span>🔢</span> Nombres Premiers (2, 3, 5, 7, 11, 13, 17,
+                    19, 23, 29, 31, 37, 41, 43, 47)
+                  </h4>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Historiquement, 2-3 nombres premiers par grille est optimal
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Min. nombres premiers
+                        <Tooltip text="Nombre minimum de nombres premiers requis dans la grille. Les nombres premiers sont : 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47." />
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="5"
+                        value={minPrimes}
+                        onChange={(e) => setMinPrimes(parseInt(e.target.value))}
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-purple-500 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Max. nombres premiers
+                        <Tooltip text="Nombre maximum de nombres premiers autorisés. L'analyse historique montre que 2-3 nombres premiers par grille est optimal." />
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="5"
+                        value={maxPrimes}
+                        onChange={(e) => setMaxPrimes(parseInt(e.target.value))}
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-purple-500/30 rounded-xl focus:ring-2 focus:ring-purple-500 text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Numéros Chauds/Froids */}
+                <div className="bg-orange-500/10 border border-orange-500/20 rounded-xl p-6">
+                  <h4 className="text-md font-bold text-orange-300 mb-4 flex items-center gap-2">
+                    <span>🔥</span> Numéros Chauds & Froids
+                  </h4>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Équilibre entre numéros en tendance et numéros en retard
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-orange-300 mb-2">
+                          🔥 Min. numéros chauds
+                          <Tooltip text="Nombre minimum de numéros 'chauds' (sortis fréquemment dans les 100 derniers tirages). Recommandé : 1-2 pour équilibrer tendances et diversité." />
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="5"
+                          value={minHotNumbers}
+                          onChange={(e) =>
+                            setMinHotNumbers(parseInt(e.target.value))
+                          }
+                          className="w-full px-4 py-3 bg-dark-900/60 border border-orange-500/30 rounded-xl focus:ring-2 focus:ring-orange-500 text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-orange-300 mb-2">
+                          🔥 Max. numéros chauds
+                          <Tooltip text="Nombre maximum de numéros chauds autorisés. Trop de numéros chauds peut être contre-productif car ils sont surjoués." />
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="5"
+                          value={maxHotNumbers}
+                          onChange={(e) =>
+                            setMaxHotNumbers(parseInt(e.target.value))
+                          }
+                          className="w-full px-4 py-3 bg-dark-900/60 border border-orange-500/30 rounded-xl focus:ring-2 focus:ring-orange-500 text-white"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-cyan-300 mb-2">
+                          ❄️ Min. numéros froids
+                          <Tooltip text="Nombre minimum de numéros 'froids' (en retard significatif). Les numéros froids peuvent être dus pour sortir selon la théorie de l'équilibre." />
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="5"
+                          value={minColdNumbers}
+                          onChange={(e) =>
+                            setMinColdNumbers(parseInt(e.target.value))
+                          }
+                          className="w-full px-4 py-3 bg-dark-900/60 border border-cyan-500/30 rounded-xl focus:ring-2 focus:ring-cyan-500 text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="flex items-center gap-2 text-sm font-medium text-cyan-300 mb-2">
+                          ❄️ Max. numéros froids
+                          <Tooltip text="Nombre maximum de numéros froids. Trop de numéros froids peut être risqué. Recommandé : 0-2 maximum." />
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="5"
+                          value={maxColdNumbers}
+                          onChange={(e) =>
+                            setMaxColdNumbers(parseInt(e.target.value))
+                          }
+                          className="w-full px-4 py-3 bg-dark-900/60 border border-cyan-500/30 rounded-xl focus:ring-2 focus:ring-cyan-500 text-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Terminaisons & Triplets */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-6">
+                    <h4 className="text-md font-bold text-emerald-300 mb-4 flex items-center gap-2">
+                      <span>🎲</span> Terminaisons Diversifiées
+                    </h4>
+                    <p className="text-sm text-slate-400 mb-4">
+                      Nombre minimum de chiffres finaux différents (0-9)
+                    </p>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Min. terminaisons uniques
+                        <Tooltip text="Nombre minimum de chiffres finaux différents (0-9). Par exemple : 12, 23, 34, 45, 16 a 5 terminaisons uniques. Recommandé : 4+ pour éviter les répétitions." />
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="5"
+                        value={minDigitEndings}
+                        onChange={(e) =>
+                          setMinDigitEndings(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-emerald-500/30 rounded-xl focus:ring-2 focus:ring-emerald-500 text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="bg-pink-500/10 border border-pink-500/20 rounded-xl p-6">
+                    <h4 className="text-md font-bold text-pink-300 mb-4 flex items-center gap-2">
+                      <span>🎯</span> Triplets Fréquents
+                    </h4>
+                    <p className="text-sm text-slate-400 mb-4">
+                      Favoriser les combinaisons de 3 numéros historiquement
+                      fréquentes
+                    </p>
+                    <label className="flex items-center justify-between bg-dark-900/40 p-4 rounded-xl border border-pink-500/20 cursor-pointer hover:bg-white/5 transition-colors group">
+                      <span className="flex items-center gap-2 font-medium text-slate-300 group-hover:text-white transition-colors">
+                        Activer bonus triplets
+                        <Tooltip text="Donne un bonus de score aux grilles contenant des triplets (combinaisons de 3 numéros) qui sont sortis fréquemment ensemble dans l'historique. Augmente les chances de reproduire des patterns gagnants." />
+                      </span>
+                      <div className="relative">
+                        <input
+                          type="checkbox"
+                          checked={favorTriplets}
+                          onChange={(e) => setFavorTriplets(e.target.checked)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`block w-14 h-8 rounded-full transition-colors ${favorTriplets ? "bg-pink-500" : "bg-dark-900"}`}
+                        ></div>
+                        <div
+                          className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${favorTriplets ? "transform translate-x-6" : ""}`}
+                        ></div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Écarts entre numéros */}
+                <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-6">
+                  <h4 className="text-md font-bold text-blue-300 mb-4 flex items-center gap-2">
+                    <span>📏</span> Écarts entre Numéros Consécutifs
+                  </h4>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Contrôle de l&apos;espacement dans la grille triée
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Écart minimum
+                        <Tooltip text="Écart minimum autorisé entre deux numéros consécutifs dans la grille triée. Par exemple : 5-8-12 a des écarts de 3 et 4. Valeur basse = grille compacte." />
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="20"
+                        value={minConsecutiveGap}
+                        onChange={(e) =>
+                          setMinConsecutiveGap(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-blue-500/30 rounded-xl focus:ring-2 focus:ring-blue-500 text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Écart maximum
+                        <Tooltip text="Écart maximum autorisé entre deux numéros consécutifs. Évite les grilles trop dispersées avec de grands trous. Recommandé : 15 maximum." />
+                      </label>
+                      <input
+                        type="number"
+                        min="1"
+                        max="48"
+                        value={maxConsecutiveGap}
+                        onChange={(e) =>
+                          setMaxConsecutiveGap(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-blue-500/30 rounded-xl focus:ring-2 focus:ring-blue-500 text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Somme cible */}
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-6">
+                  <h4 className="text-md font-bold text-amber-300 mb-4 flex items-center gap-2">
+                    <span>🎰</span> Somme des Numéros
+                  </h4>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Plage de somme optimale (P10-P90 historique : ~100-170).
+                    Laisser à 0 pour désactiver.
+                  </p>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Somme minimum
+                        <Tooltip text="Somme minimale des 5 numéros. Historiquement, la plage optimale est 100-170 (P10-P90). Laisser à 0 pour désactiver cette contrainte." />
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="245"
+                        value={targetSumMin}
+                        onChange={(e) =>
+                          setTargetSumMin(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-amber-500/30 rounded-xl focus:ring-2 focus:ring-amber-500 text-white"
+                        placeholder="0 = désactivé"
+                      />
+                    </div>
+                    <div>
+                      <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
+                        Somme maximum
+                        <Tooltip text="Somme maximale des 5 numéros. Combiné avec le minimum, cela définit une plage cible. Laisser à 0 pour désactiver." />
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="245"
+                        value={targetSumMax}
+                        onChange={(e) =>
+                          setTargetSumMax(parseInt(e.target.value))
+                        }
+                        className="w-full px-4 py-3 bg-dark-900/60 border border-amber-500/30 rounded-xl focus:ring-2 focus:ring-amber-500 text-white"
+                        placeholder="0 = désactivé"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -362,7 +774,9 @@ export default function GeneratorPage() {
 
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 mb-8 flex items-center gap-4 animate-fade-in">
-          <span className="text-red-400 text-2xl bg-red-500/20 p-2 rounded-full">❌</span>
+          <span className="text-red-400 text-2xl bg-red-500/20 p-2 rounded-full">
+            ❌
+          </span>
           <p className="text-red-100 font-medium text-lg">{error}</p>
         </div>
       )}
@@ -370,7 +784,8 @@ export default function GeneratorPage() {
       {warnings.length > 0 && (
         <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-6 mb-8 animate-fade-in">
           <p className="font-bold text-orange-400 mb-3 flex items-center gap-2">
-            <span className="bg-orange-500/20 p-1.5 rounded-full">⚠️</span> Ajustements algorithmiques :
+            <span className="bg-orange-500/20 p-1.5 rounded-full">⚠️</span>{" "}
+            Ajustements algorithmiques :
           </p>
           <ul className="list-disc list-inside text-orange-200/90 text-sm space-y-1">
             {warnings.map((w, i) => (
@@ -384,11 +799,17 @@ export default function GeneratorPage() {
         <div id="results-section" className="animate-slide-up pt-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
             <div>
-              <h2 className="text-3xl font-extrabold text-white mb-2">Grilles Validées</h2>
+              <h2 className="text-3xl font-extrabold text-white mb-2">
+                Grilles Validées
+              </h2>
               {genStats && (
                 <p className="text-sm text-slate-400 font-mono">
-                  Score moy: <span className="text-emerald-400 font-bold">{genStats.avgScore.toFixed(1)}</span> •
-                  Itérations: {genStats.iterations} • Rejets: {genStats.rejections}
+                  Score moy:{" "}
+                  <span className="text-emerald-400 font-bold">
+                    {genStats.avgScore.toFixed(1)}
+                  </span>{" "}
+                  • Itérations: {genStats.iterations} • Rejets:{" "}
+                  {genStats.rejections}
                 </p>
               )}
             </div>
@@ -402,18 +823,32 @@ export default function GeneratorPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {grids.map((grid, i) => (
-              <div key={i} className="glass-panel border border-white/10 rounded-3xl p-6 relative overflow-hidden group hover:bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary-500/20">
+              <div
+                key={i}
+                className="glass-panel border border-white/10 rounded-3xl p-6 relative overflow-hidden group hover:bg-white/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary-500/20"
+              >
                 {/* Score Glow Background */}
                 <div
                   className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl opacity-20 pointer-events-none transition-all duration-500 group-hover:opacity-40"
-                  style={{ backgroundColor: grid.score > 200 ? '#10b981' : grid.score > 100 ? '#3b82f6' : '#8b5cf6' }}
+                  style={{
+                    backgroundColor:
+                      grid.score > 200
+                        ? "#10b981"
+                        : grid.score > 100
+                          ? "#3b82f6"
+                          : "#8b5cf6",
+                  }}
                 ></div>
 
                 <div className="flex justify-between items-center mb-6 relative z-10">
-                  <span className="text-xs font-bold tracking-widest text-slate-500 uppercase">Grille {String(i + 1).padStart(2, '0')}</span>
+                  <span className="text-xs font-bold tracking-widest text-slate-500 uppercase">
+                    Grille {String(i + 1).padStart(2, "0")}
+                  </span>
                   <div className="flex items-center gap-2 bg-dark-900/60 px-3 py-1 rounded-lg border border-white/5 text-sm">
                     <span className="text-slate-400">Score</span>
-                    <span className={`font-bold ${grid.score > 200 ? 'text-emerald-400' : grid.score > 100 ? 'text-primary-400' : 'text-purple-400'}`}>
+                    <span
+                      className={`font-bold ${grid.score > 200 ? "text-emerald-400" : grid.score > 100 ? "text-primary-400" : "text-purple-400"}`}
+                    >
                       {grid.score.toFixed(0)}
                     </span>
                   </div>
@@ -430,26 +865,38 @@ export default function GeneratorPage() {
                 <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-xs relative z-10">
                   <div className="bg-dark-900/30 p-2 rounded-lg border border-white/5">
                     <span className="text-slate-500 block mb-1">Somme</span>
-                    <span className="font-bold text-white">{grid.metadata.sum}</span>
+                    <span className="font-bold text-white">
+                      {grid.metadata.sum}
+                    </span>
                   </div>
                   <div className="bg-dark-900/30 p-2 rounded-lg border border-white/5">
                     <span className="text-slate-500 block mb-1">Amplitude</span>
-                    <span className="font-bold text-white">{grid.metadata.range}</span>
+                    <span className="font-bold text-white">
+                      {grid.metadata.range}
+                    </span>
                   </div>
                   <div className="bg-dark-900/30 p-2 rounded-lg border border-white/5">
-                    <span className="text-slate-500 block mb-1">Pair/Impair</span>
-                    <span className="font-bold text-white">{grid.metadata.evenCount}/{grid.metadata.oddCount}</span>
+                    <span className="text-slate-500 block mb-1">
+                      Pair/Impair
+                    </span>
+                    <span className="font-bold text-white">
+                      {grid.metadata.evenCount}/{grid.metadata.oddCount}
+                    </span>
                   </div>
                   <div className="bg-dark-900/30 p-2 rounded-lg border border-white/5">
                     <span className="text-slate-500 block mb-1">Bas/Haut</span>
-                    <span className="font-bold text-white">{grid.metadata.lowCount}/{grid.metadata.highCount}</span>
+                    <span className="font-bold text-white">
+                      {grid.metadata.lowCount}/{grid.metadata.highCount}
+                    </span>
                   </div>
                 </div>
 
                 {grid.metadata.highNumbers.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-white/5 relative z-10 flex items-center justify-between text-xs">
                     <span className="text-slate-500">N° ≥ 31</span>
-                    <span className="font-bold text-orange-300">{grid.metadata.highNumbers.join(', ')}</span>
+                    <span className="font-bold text-orange-300">
+                      {grid.metadata.highNumbers.join(", ")}
+                    </span>
                   </div>
                 )}
               </div>
@@ -458,5 +905,5 @@ export default function GeneratorPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -104,8 +104,8 @@ export interface GenerateConstraints {
   count?: number;
   excludePreviousDraw?: boolean;
   excludePreviousChance?: boolean;
-  evenOddRatio?: "1/4" | "2/3" | "3/2" | "4/1";
-  lowHighRatio?: "1/4" | "2/3" | "3/2" | "4/1";
+  evenOddRatio?: "1/4" | "2/3" | "3/2" | "4/1" | "5/0" | "0/5";
+  lowHighRatio?: "1/4" | "2/3" | "3/2" | "4/1" | "5/0" | "0/5";
   maxPerDecade?: number;
   maxConsecutive?: number;
   minRange?: number;

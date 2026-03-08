@@ -17,10 +17,10 @@ export default function GeneratorPage() {
   const [excludePrevious, setExcludePrevious] = useState(true);
   const [excludePreviousChance, setExcludePreviousChance] = useState(false);
   const [evenOddRatio, setEvenOddRatio] = useState<
-    "1/4" | "2/3" | "3/2" | "4/1" | ""
+    "1/4" | "2/3" | "3/2" | "4/1" | "5/0" | "0/5" | ""
   >("");
   const [lowHighRatio, setLowHighRatio] = useState<
-    "1/4" | "2/3" | "3/2" | "4/1" | ""
+    "1/4" | "2/3" | "3/2" | "4/1" | "5/0" | "0/5" | ""
   >("");
   const [maxPerDecade, setMaxPerDecade] = useState(2);
   const [minRange, setMinRange] = useState(25);
@@ -330,10 +330,12 @@ export default function GeneratorPage() {
                   className="w-full px-4 py-3 bg-dark-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary-500 text-white appearance-none"
                 >
                   <option value="">Naturel (Sans contrainte)</option>
+                  <option value="0/5">0 Pair / 5 Impairs</option>
                   <option value="1/4">1 Pair / 4 Impairs</option>
                   <option value="2/3">2 Pairs / 3 Impairs (Fréquent)</option>
                   <option value="3/2">3 Pairs / 2 Impairs (Fréquent)</option>
                   <option value="4/1">4 Pairs / 1 Impair</option>
+                  <option value="5/0">5 Pairs / 0 Impair</option>
                 </select>
               </div>
 
@@ -348,10 +350,12 @@ export default function GeneratorPage() {
                   className="w-full px-4 py-3 bg-dark-900/60 border border-white/10 rounded-xl focus:ring-2 focus:ring-primary-500 text-white appearance-none"
                 >
                   <option value="">Naturel (Sans contrainte)</option>
+                  <option value="0/5">0 Bas / 5 Hauts</option>
                   <option value="1/4">1 Bas / 4 Hauts</option>
                   <option value="2/3">2 Bas / 3 Hauts</option>
                   <option value="3/2">3 Bas / 2 Hauts</option>
                   <option value="4/1">4 Bas / 1 Haut</option>
+                  <option value="5/0">5 Bas / 0 Haut</option>
                 </select>
               </div>
 

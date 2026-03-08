@@ -133,6 +133,18 @@ function checkHardConstraints(
   ) {
     return { valid: false, reason: "Even/odd ratio not 4/1" };
   }
+  if (
+    constraints.evenOddRatio === "5/0" &&
+    !(evenCount === 5 && oddCount === 0)
+  ) {
+    return { valid: false, reason: "Even/odd ratio not 5/0" };
+  }
+  if (
+    constraints.evenOddRatio === "0/5" &&
+    !(evenCount === 0 && oddCount === 5)
+  ) {
+    return { valid: false, reason: "Even/odd ratio not 0/5" };
+  }
 
   const lowCount = nums.filter((n) => n <= 24).length;
   const highCount = 5 - lowCount;
@@ -160,6 +172,18 @@ function checkHardConstraints(
     !(lowCount === 4 && highCount === 1)
   ) {
     return { valid: false, reason: "Low/high ratio not 4/1" };
+  }
+  if (
+    constraints.lowHighRatio === "5/0" &&
+    !(lowCount === 5 && highCount === 0)
+  ) {
+    return { valid: false, reason: "Low/high ratio not 5/0" };
+  }
+  if (
+    constraints.lowHighRatio === "0/5" &&
+    !(lowCount === 0 && highCount === 5)
+  ) {
+    return { valid: false, reason: "Low/high ratio not 0/5" };
   }
 
   const maxPerDecade = constraints.maxPerDecade ?? 2;

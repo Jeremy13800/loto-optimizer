@@ -171,19 +171,25 @@ export default function AnalysisPage() {
               <div className="bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 border border-emerald-500/20 p-6 rounded-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-all"></div>
                 <p className="text-sm text-emerald-300 font-semibold uppercase tracking-wider mb-2">
-                  Somme P10
+                  Somme Minimale Fréquente
                 </p>
                 <p className="text-4xl font-extrabold text-white">
                   {stats.sumPercentiles.p10}
+                </p>
+                <p className="text-xs text-emerald-300/60 mt-2">
+                  10% des tirages sont en dessous
                 </p>
               </div>
               <div className="bg-gradient-to-br from-rose-500/20 to-rose-600/5 border border-rose-500/20 p-6 rounded-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition-all"></div>
                 <p className="text-sm text-rose-300 font-semibold uppercase tracking-wider mb-2">
-                  Somme P90
+                  Somme Maximale Fréquente
                 </p>
                 <p className="text-4xl font-extrabold text-white">
                   {stats.sumPercentiles.p90}
+                </p>
+                <p className="text-xs text-rose-300/60 mt-2">
+                  10% des tirages sont au dessus
                 </p>
               </div>
             </div>

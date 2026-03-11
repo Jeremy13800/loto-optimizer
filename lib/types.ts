@@ -131,6 +131,9 @@ export interface GenerateConstraints {
   maxConsecutiveGap?: number;
   targetSumMin?: number;
   targetSumMax?: number;
+
+  // Advanced constraints (new)
+  advanced?: import("./stats/advanced-types").AdvancedConstraints;
 }
 
 export interface GeneratedGrid {
@@ -146,6 +149,9 @@ export interface GeneratedGrid {
     highCount: number;
     highNumbers: number[];
   };
+  // Advanced scoring (new)
+  explainableScore?: import("./stats/advanced-types").ExplainableScore;
+  analysis?: import("./stats/advanced-types").GridAnalysis;
 }
 
 export interface GenerateResult {

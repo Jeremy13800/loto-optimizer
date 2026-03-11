@@ -197,7 +197,7 @@ function checkHardConstraints(
     }
   }
 
-  const maxConsecutive = constraints.maxConsecutive ?? 1;
+  const maxConsecutive = constraints.maxConsecutive ?? 0;
   const consecutiveCount = countConsecutivePairs(nums);
   if (consecutiveCount > maxConsecutive) {
     return {

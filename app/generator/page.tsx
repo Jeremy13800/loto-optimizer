@@ -5,6 +5,7 @@ import NumberBadge from "@/components/NumberBadge";
 import Tooltip from "@/components/Tooltip";
 import PresetSelector from "@/components/PresetSelector";
 import ScoreExplanation from "@/components/ScoreExplanation";
+import ComprehensiveScoreDisplay from "@/components/ComprehensiveScoreDisplay";
 import { GenerateConstraints, GeneratedGrid } from "@/lib/types";
 import {
   GridPreset,
@@ -1511,6 +1512,11 @@ export default function GeneratorPage() {
                 {/* Score Explanation */}
                 {grid.explainableScore && (
                   <ScoreExplanation score={grid.explainableScore} />
+                )}
+
+                {/* Comprehensive Score */}
+                {grid.comprehensiveScore && (
+                  <ComprehensiveScoreDisplay score={grid.comprehensiveScore} />
                 )}
               </div>
             ))}

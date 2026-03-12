@@ -1,19 +1,21 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { Draw, GenerateConstraints } from '@/lib/types'
-import { generateGrids } from '@/lib/generator'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { Draw, GenerateConstraints } from "@/lib/types";
+import { generateGrids } from "@/lib/generator";
+import { scoreGrid } from "@/lib/stats/scoring/comprehensive-scoring";
+import { analyzeCoOccurrence } from "@/lib/stats/analysis/co-occurrence-analysis";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json() as GenerateConstraints
+    const body = (await request.json()) as GenerateConstraints;
 
-    const window = body.window?.window || 'all'
-    const from = body.window?.from
-    const to = body.window?.to
+    const window = body.window?.window || "all";
+    const from = body.window?.from;
+    const to = body.window?.to;
 
-    let dbDraws
+    let dbDraws;
 
-    if (window === 'custom' && from && to) {
+    if (window === "custom" && from && to) {
       dbDraws = await prisma.draw.findMany({
         where: {
           dateISO: {
@@ -21,25 +23,25 @@ export async function POST(request: NextRequest) {
             lte: to,
           },
         },
-        orderBy: { dateISO: 'desc' },
-      })
-    } else if (window === '1000') {
+        orderBy: { dateISO: "desc" },
+      });
+    } else if (window === "1000") {
       dbDraws = await prisma.draw.findMany({
-        orderBy: { dateISO: 'desc' },
+        orderBy: { dateISO: "desc" },
         take: 1000,
-      })
-    } else if (window === '200') {
+      });
+    } else if (window === "200") {
       dbDraws = await prisma.draw.findMany({
-        orderBy: { dateISO: 'desc' },
+        orderBy: { dateISO: "desc" },
         take: 200,
-      })
+      });
     } else {
       dbDraws = await prisma.draw.findMany({
-        orderBy: { dateISO: 'desc' },
-      })
+        orderBy: { dateISO: "desc" },
+      });
     }
 
-    const draws: Draw[] = dbDraws.map(draw => ({
+    const draws: Draw[] = dbDraws.map((draw) => ({
       id: draw.id,
       dateISO: draw.dateISO,
       dateLabel: draw.dateLabel,
@@ -47,26 +49,48 @@ export async function POST(request: NextRequest) {
       chance: draw.chance,
       source: draw.source,
       rawDateText: draw.rawDateText || undefined,
-    }))
+    }));
 
     if (draws.length === 0) {
       return NextResponse.json(
-        { error: 'No draws available. Please sync data first.' },
-        { status: 400 }
-      )
+        { error: "No draws available. Please sync data first." },
+        { status: 400 },
+      );
     }
 
-    const result = await generateGrids(draws, body)
+    const result = await generateGrids(draws, body);
+
+    // Calculate comprehensive scores for all grids
+    const coOccurrence = analyzeCoOccurrence(draws);
+    const previousDraw = draws[0] || null;
+
+    const gridsWithComprehensiveScores = result.grids.map((grid) => ({
+      ...grid,
+      comprehensiveScore: scoreGrid(grid.nums, {
+        previousDraw,
+        topPairs: coOccurrence.topPairs,
+      }),
+    }));
+
+    // Sort by comprehensive score (descending)
+    gridsWithComprehensiveScores.sort(
+      (a, b) =>
+        (b.comprehensiveScore?.total || 0) - (a.comprehensiveScore?.total || 0),
+    );
 
     return NextResponse.json({
       ...result,
+      grids: gridsWithComprehensiveScores,
       constraints: body,
-    })
+    });
   } catch (error) {
-    console.error('Error generating grids:', error)
+    console.error("Error generating grids:", error);
     return NextResponse.json(
-      { error: 'Failed to generate grids', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    )
+      {
+        error: "Failed to generate grids",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
   }
 }

@@ -283,8 +283,16 @@ export function calculateStats(draws: Draw[]): Stats {
   const recentAvgFrequency = recentWindow > 0 ? (recentWindow * 5) / 49 : 0;
 
   const numberStatsAdvanced: NumberStats[] = [];
-  const hotNumbers: number[] = [];
-  const coldNumbers: number[] = [];
+
+  // Build array with all numbers and their recent frequencies
+  const numbersWithFreq: Array<{
+    number: number;
+    recentFreq: number;
+    frequency: number;
+    avgGap: number;
+    stdDevGap: number;
+    lastGap: number;
+  }> = [];
 
   for (let i = 1; i <= 49; i++) {
     const frequency = numberCounts.get(i) || 0;
@@ -308,19 +316,34 @@ export function calculateStats(draws: Draw[]): Stats {
         ? draws.length - 1 - lastSeenIndex
         : draws.length;
 
-    const isHot = recentFreq > recentAvgFrequency * 1.3;
-    const isCold =
-      recentFreq < recentAvgFrequency * 0.5 && lastGap > avgGap * 1.5;
-
-    if (isHot) hotNumbers.push(i);
-    if (isCold) coldNumbers.push(i);
-
-    numberStatsAdvanced.push({
+    numbersWithFreq.push({
       number: i,
+      recentFreq,
       frequency,
       avgGap,
       stdDevGap,
       lastGap,
+    });
+  }
+
+  // Sort by recent frequency and select top 7 hot and bottom 7 cold
+  const sortedByRecentFreq = [...numbersWithFreq].sort(
+    (a, b) => b.recentFreq - a.recentFreq,
+  );
+  const hotNumbers = sortedByRecentFreq.slice(0, 7).map((n) => n.number);
+  const coldNumbers = sortedByRecentFreq.slice(-7).map((n) => n.number);
+
+  // Build numberStatsAdvanced with isHot and isCold flags
+  for (const numData of numbersWithFreq) {
+    const isHot = hotNumbers.includes(numData.number);
+    const isCold = coldNumbers.includes(numData.number);
+
+    numberStatsAdvanced.push({
+      number: numData.number,
+      frequency: numData.frequency,
+      avgGap: numData.avgGap,
+      stdDevGap: numData.stdDevGap,
+      lastGap: numData.lastGap,
       isHot,
       isCold,
     });

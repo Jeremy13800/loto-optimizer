@@ -152,6 +152,8 @@ export interface GeneratedGrid {
   // Advanced scoring (new)
   explainableScore?: import("./stats/advanced-types").ExplainableScore;
   analysis?: import("./stats/advanced-types").GridAnalysis;
+  // Comprehensive scoring (newest)
+  comprehensiveScore?: import("./stats/scoring/comprehensive-scoring").ComprehensiveScore;
 }
 
 export interface GenerateResult {

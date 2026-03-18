@@ -21,16 +21,18 @@ export default function RootLayout({
         className={`${outfit.className} bg-dark-900 text-slate-200 min-h-screen selection:bg-primary-500/30 selection:text-white`}
       >
         <nav className="fixed top-0 w-full z-50 glass border-b border-white/5">
-          <div className="container mx-auto px-6 py-4">
-            <div className="flex items-center justify-between">
+          <div className="container mx-auto px-4 sm:px-6 py-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0">
               <Link
                 href="/"
-                className="text-2xl font-bold text-gradient tracking-tight flex items-center gap-2"
+                className="text-xl sm:text-2xl font-bold text-gradient tracking-tight flex items-center gap-2"
               >
-                <span className="text-3xl filter drop-shadow-md">🎰</span> Loto
-                FDJ Analyzer
+                <span className="text-2xl sm:text-3xl filter drop-shadow-md">
+                  🎰
+                </span>{" "}
+                Loto FDJ Analyzer
               </Link>
-              <div className="flex gap-8 text-sm font-medium">
+              <div className="flex gap-4 sm:gap-8 text-sm font-medium">
                 <Link
                   href="/results"
                   className="text-slate-300 hover:text-white hover:text-shadow-glow transition-all"

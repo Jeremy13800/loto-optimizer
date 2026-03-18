@@ -233,40 +233,6 @@ export default function GeneratorPage() {
     }
   };
 
-  const exportCSV = () => {
-    if (grids.length === 0) return;
-
-    const headers = [
-      "Grille",
-      "N1",
-      "N2",
-      "N3",
-      "N4",
-      "N5",
-      "Chance",
-      "Score",
-      "Somme",
-      "Amplitude",
-    ];
-    const rows = grids.map((grid, i) => [
-      i + 1,
-      ...grid.nums,
-      grid.chance,
-      grid.score.toFixed(1),
-      grid.metadata.sum,
-      grid.metadata.range,
-    ]);
-
-    const csv = [headers, ...rows].map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `loto-grids-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in relative z-10">
       <div className="flex items-center justify-between mb-8">
@@ -1422,12 +1388,6 @@ export default function GeneratorPage() {
                 </p>
               )}
             </div>
-            <button
-              onClick={exportCSV}
-              className="bg-dark-900 border border-emerald-500/50 text-emerald-400 px-6 py-3 rounded-xl hover:bg-emerald-500 hover:text-white transition-all duration-300 font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)] flex items-center gap-2"
-            >
-              <span>📥</span> Exporter CSV
-            </button>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

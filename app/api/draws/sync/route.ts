@@ -13,6 +13,24 @@ let lastSync: { timestamp: number; etag: string } | null = null;
 
 export async function POST(request: NextRequest) {
   try {
+    // Security: Check API key
+    const apiKey = request.headers.get("x-api-key");
+    const validApiKey = process.env.SYNC_API_KEY;
+
+    if (!validApiKey) {
+      return NextResponse.json(
+        { error: "Server configuration error: SYNC_API_KEY not set" },
+        { status: 500 },
+      );
+    }
+
+    if (!apiKey || apiKey !== validApiKey) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing API key" },
+        { status: 401 },
+      );
+    }
+
     const now = Date.now();
 
     if (lastSync && now - lastSync.timestamp < CACHE_DURATION) {

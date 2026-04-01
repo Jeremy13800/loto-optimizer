@@ -1,45 +1,37 @@
 /**
- * API endpoint for advanced grid generation with explainable scoring
+ * API endpoint for ULTRA-ADVANCED grid generation
+ * Uses complete historical pattern analysis of all 2420+ draws
  */
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { GenerateConstraints } from "@/lib/types";
-import { generateAdvancedGrids } from "@/lib/generator-advanced";
-import { calculateStats } from "@/lib/stats";
-import { calculatePairFrequencies } from "@/lib/stats/pairs";
+import { generateAdvancedGrids } from "@/lib/advanced-generator";
+import {
+  extractHistoricalPatterns,
+  exportPatternStats,
+} from "@/lib/advanced-pattern-analysis";
 
 export async function POST(request: Request) {
   try {
-    const constraints: GenerateConstraints = await request.json();
+    const body = await request.json();
+    const constraints: GenerateConstraints = body.constraints || body;
+    const count = constraints.count || body.count || 5;
 
-    // Validate constraints
-    if (!constraints.count || constraints.count < 1 || constraints.count > 20) {
+    // Validate count
+    if (count < 1 || count > 20) {
       return NextResponse.json(
         { error: "Count must be between 1 and 20" },
         { status: 400 },
       );
     }
 
-    // Fetch draws based on window
-    const window = constraints.window?.window || "all";
-    let draws;
+    console.log(`🚀 Advanced generation requested: ${count} grids`);
 
-    if (window === "200") {
-      draws = await prisma.draw.findMany({
-        orderBy: { dateISO: "desc" },
-        take: 200,
-      });
-    } else if (window === "1000") {
-      draws = await prisma.draw.findMany({
-        orderBy: { dateISO: "desc" },
-        take: 1000,
-      });
-    } else {
-      draws = await prisma.draw.findMany({
-        orderBy: { dateISO: "desc" },
-      });
-    }
+    // Fetch ALL draws for maximum pattern analysis
+    const draws = await prisma.draw.findMany({
+      orderBy: { dateISO: "desc" },
+    });
 
     if (draws.length === 0) {
       return NextResponse.json(
@@ -48,6 +40,8 @@ export async function POST(request: Request) {
       );
     }
 
+    console.log(`📊 Analyzing ${draws.length} historical draws...`);
+
     // Parse nums (stored as JSON strings)
     const parsedDraws = draws.map((d) => ({
       ...d,
@@ -55,39 +49,32 @@ export async function POST(request: Request) {
       rawDateText: d.rawDateText || undefined,
     }));
 
-    // Calculate statistics
-    const stats = calculateStats(parsedDraws);
+    // Generate grids with ultra-advanced pattern analysis
+    const startTime = Date.now();
+    const grids = await generateAdvancedGrids(parsedDraws, count, constraints);
+    const generationTime = Date.now() - startTime;
 
-    // Get previous draw
-    const previousDraw = parsedDraws[0] || null;
-
-    // Calculate frequent pairs if enabled
-    let frequentPairs;
-    if (constraints.advanced?.frequentPairs?.enabled) {
-      const topN = constraints.advanced.frequentPairs.topN || 50;
-      frequentPairs = calculatePairFrequencies(parsedDraws, topN);
-    }
-
-    // Generate grids with advanced scoring
-    const result = await generateAdvancedGrids(
-      constraints,
-      stats,
-      previousDraw,
-      frequentPairs,
-    );
+    // Extract patterns for metadata
+    const patterns = extractHistoricalPatterns(parsedDraws);
 
     return NextResponse.json({
-      grids: result.grids,
-      stats: result.stats,
-      warnings: result.warnings,
+      success: true,
+      grids,
       metadata: {
         totalDraws: parsedDraws.length,
-        window,
-        preset: constraints.advanced?.preset || "custom",
+        generationTime: `${generationTime}ms`,
+        patternsAnalyzed: {
+          pairs: patterns.numberPairFrequency.size,
+          triplets: patterns.numberTripletFrequency.size,
+          cyclicNumbers: patterns.cyclicNumbers.size,
+        },
+        hotNumbers: patterns.hotNumbers,
+        coldNumbers: patterns.coldNumbers,
+        avgScore: grids.reduce((sum, g) => sum + g.score, 0) / grids.length,
       },
     });
   } catch (error) {
-    console.error("Error generating advanced grids:", error);
+    console.error("❌ Error generating advanced grids:", error);
     return NextResponse.json(
       {
         error: "Failed to generate grids",

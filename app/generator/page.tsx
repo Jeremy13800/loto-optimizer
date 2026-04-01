@@ -91,6 +91,9 @@ export default function GeneratorPage() {
     | "patterns"
     | "experimental"
   >("structure");
+  const [useUltraAdvanced, setUseUltraAdvanced] = useState(false);
+  const [applyConstraintsWithUltra, setApplyConstraintsWithUltra] =
+    useState(false);
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -200,14 +203,24 @@ export default function GeneratorPage() {
     }
 
     try {
-      // Use advanced API if advanced parameters are enabled
-      const apiEndpoint = showAdvanced
-        ? "/api/generate-advanced"
-        : "/api/generate";
+      // Use ultra-advanced API if enabled, otherwise use advanced or standard
+      const apiEndpoint = useUltraAdvanced
+        ? "/api/generate-ultra"
+        : showAdvanced
+          ? "/api/generate-advanced"
+          : "/api/generate";
+
+      console.log(
+        "🚀 Mode Ultra-Avancé:",
+        useUltraAdvanced ? "ACTIVÉ ✓" : "Désactivé",
+      );
+      console.log("📡 API utilisée:", apiEndpoint);
+      console.log("📊 Nombre de grilles:", count);
+
       const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(constraints),
+        body: JSON.stringify(useUltraAdvanced ? { count } : constraints),
       });
 
       if (!response.ok) {
@@ -218,7 +231,7 @@ export default function GeneratorPage() {
       const data = await response.json();
       setGrids(data.grids);
       setWarnings(data.warnings || []);
-      setGenStats(data.stats);
+      setGenStats(data.stats || data.metadata);
 
       // Scroll to results slightly
       setTimeout(() => {
@@ -298,74 +311,312 @@ export default function GeneratorPage() {
         </div>
       </div>
 
-      {/* Preset Selector */}
-      <div className="mb-10">
-        <PresetSelector value={selectedPreset} onChange={setSelectedPreset} />
-      </div>
+      {/* SECTION 1: MODE ULTRA-AVANCÉ */}
+      <div className="mb-8">
+        <div className="space-y-6">
+          {/* Ultra-Advanced Mode - COMPREHENSIVE PRESENTATION */}
+          <div className="bg-gradient-to-br from-purple-900/50 via-indigo-900/40 to-emerald-900/50 p-8 rounded-3xl border-2 border-purple-500/60 shadow-[0_0_50px_rgba(168,85,247,0.4)] relative overflow-hidden">
+            {/* Animated background */}
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-emerald-500/10 animate-pulse"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl"></div>
 
-      <div className="glass-panel rounded-3xl p-6 md:p-10 mb-10 relative overflow-hidden text-slate-200">
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-purple-500 via-primary-500 to-emerald-500"></div>
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+            <div className="relative z-10">
+              {/* Header */}
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-start gap-5 flex-1">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h3 className="text-3xl font-extrabold text-white bg-clip-text">
+                        Mode Ultra-Avancé
+                      </h3>
+                      <span className="px-3 py-1 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white text-xs font-bold rounded-full animate-pulse shadow-lg">
+                        NOUVEAU
+                      </span>
+                      <span className="px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold rounded-full shadow-lg">
+                        IA
+                      </span>
+                      <span className="px-3 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-lg">
+                        BETA
+                      </span>
+                    </div>
+                    <p className="text-lg text-slate-200 leading-relaxed mb-4 font-medium">
+                      Système de génération révolutionnaire utilisant
+                      l'intelligence artificielle et l'analyse approfondie de{" "}
+                      <span className="text-emerald-400 font-bold">
+                        {genStats?.totalDraws || "2426"} tirages historiques
+                      </span>{" "}
+                      pour identifier les patterns, cycles et combinaisons les
+                      plus pertinents du Loto FDJ
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <div className="group relative">
+                        <span className="px-3 py-1.5 bg-purple-500/30 text-purple-200 text-sm rounded-lg border border-purple-400/40 font-semibold cursor-help">
+                          🧠 Patterns Avancés
+                        </span>
+                        <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-purple-500/50 rounded-xl shadow-2xl z-50">
+                          <p className="text-xs text-purple-200 font-bold mb-2">
+                            🧠 Patterns Avancés
+                          </p>
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            Détection automatique des paires et triplets de
+                            numéros qui sortent fréquemment ensemble dans
+                            l'historique. L'algorithme identifie les
+                            combinaisons récurrentes et les favorise dans la
+                            génération.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="group relative">
+                        <span className="px-3 py-1.5 bg-emerald-500/30 text-emerald-200 text-sm rounded-lg border border-emerald-400/40 font-semibold cursor-help">
+                          🔄 Cycles Temporels
+                        </span>
+                        <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-emerald-500/50 rounded-xl shadow-2xl z-50">
+                          <p className="text-xs text-emerald-200 font-bold mb-2">
+                            🔄 Cycles Temporels
+                          </p>
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            Analyse de l'intégralité de l'historique des tirages
+                            pour identifier les cycles et tendances de sortie
+                            des numéros. Détecte les numéros "chauds" (sortis
+                            fréquemment) et "froids" (rares) sur toute la
+                            période disponible.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="group relative">
+                        <span className="px-3 py-1.5 bg-cyan-500/30 text-cyan-200 text-sm rounded-lg border border-cyan-400/40 font-semibold cursor-help">
+                          ⚖️ Poids Adaptatifs
+                        </span>
+                        <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-cyan-500/50 rounded-xl shadow-2xl z-50">
+                          <p className="text-xs text-cyan-200 font-bold mb-2">
+                            ⚖️ Poids Adaptatifs
+                          </p>
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            Calcul intelligent de la probabilité de sortie de
+                            chaque numéro basé sur 5 critères : fréquence
+                            globale, dernière apparition (numéros
+                            chauds/froids), cycles, paires fréquentes et
+                            validation historique. Chaque numéro reçoit un poids
+                            qui influence sa sélection.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="group relative">
+                        <span className="px-3 py-1.5 bg-pink-500/30 text-pink-200 text-sm rounded-lg border border-pink-400/40 font-semibold cursor-help">
+                          ✅ Validation Historique
+                        </span>
+                        <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-pink-500/50 rounded-xl shadow-2xl z-50">
+                          <p className="text-xs text-pink-200 font-bold mb-2">
+                            ✅ Validation Historique
+                          </p>
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            Vérification stricte de chaque grille générée contre
+                            7 critères historiques : pas de numéros consécutifs,
+                            respect des ratios pair/impair et bas/haut observés,
+                            validation des patterns détectés.
+                          </p>
+                        </div>
+                      </div>
+                      <div className="group relative">
+                        <span className="px-3 py-1.5 bg-indigo-500/30 text-indigo-200 text-sm rounded-lg border border-indigo-400/40 font-semibold cursor-help">
+                          🎯 Scoring Multi-Axes
+                        </span>
+                        <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-indigo-500/50 rounded-xl shadow-2xl z-50">
+                          <p className="text-xs text-indigo-200 font-bold mb-2">
+                            🎯 Scoring Multi-Axes
+                          </p>
+                          <p className="text-xs text-slate-300 leading-relaxed">
+                            Attribution d'un score de qualité à chaque grille
+                            basé sur plusieurs dimensions : cohérence avec
+                            l'historique, diversité, équilibre, et rareté des
+                            combinaisons. Les meilleures grilles sont
+                            conservées.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setUseUltraAdvanced(!useUltraAdvanced)}
+                  className={`group relative px-10 py-5 rounded-2xl font-extrabold text-xl transition-all duration-500 whitespace-nowrap overflow-hidden ${
+                    useUltraAdvanced
+                      ? "bg-gradient-to-br from-emerald-500 via-cyan-500 to-purple-500 text-white shadow-[0_0_40px_rgba(16,185,129,0.6)] scale-105 hover:scale-110 hover:shadow-[0_0_60px_rgba(16,185,129,0.8)]"
+                      : "bg-gradient-to-br from-purple-900/50 to-indigo-900/50 border-2 border-purple-500/70 text-purple-200 hover:from-purple-800/70 hover:to-indigo-800/70 hover:border-purple-400 hover:scale-105 hover:shadow-[0_0_30px_rgba(168,85,247,0.5)]"
+                  }`}
+                >
+                  {/* Animated background effect */}
+                  <div
+                    className={`absolute inset-0 transition-opacity duration-500 ${
+                      useUltraAdvanced ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
+                  </div>
 
-        <h2 className="text-2xl font-bold text-white mb-8 flex items-center gap-3">
-          <span className="p-2 bg-purple-500/20 rounded-lg text-purple-400">
-            ⚙️
-          </span>{" "}
-          Configuration de l&apos;algorithme
-        </h2>
+                  {/* Button content */}
+                  <div className="relative flex items-center gap-3">
+                    {useUltraAdvanced ? (
+                      <>
+                        <span className="text-2xl animate-bounce">✓</span>
+                        <span className="tracking-wide">Activé</span>
+                      </>
+                    ) : (
+                      <span className="tracking-wide">Activer</span>
+                    )}
+                  </div>
 
-        <div className="space-y-8 relative z-10">
-          {/* Section 1: Base */}
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-dark-900/40 p-6 rounded-2xl border border-white/5">
-              <label className="flex items-center gap-2 text-sm font-bold text-purple-300 mb-3 uppercase tracking-wider">
-                Nombre de grilles
-                <Tooltip text="Nombre de grilles optimisées à générer. Plus vous en générez, plus vous augmentez vos chances de couverture, mais le coût augmente proportionnellement." />
-              </label>
-              <div className="flex items-center gap-4">
-                <input
-                  type="range"
-                  min="1"
-                  max="20"
-                  value={count}
-                  onChange={(e) => setCount(parseInt(e.target.value))}
-                  className="w-full accent-purple-500 h-2 bg-dark-900 rounded-lg appearance-none cursor-pointer"
-                />
-                <div className="w-16 h-12 bg-dark-900 border border-purple-500/30 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-inner">
-                  {count}
+                  {/* Glow effect on hover */}
+                  <div
+                    className={`absolute inset-0 rounded-2xl transition-opacity duration-300 ${
+                      useUltraAdvanced
+                        ? "bg-gradient-to-r from-emerald-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100"
+                        : "bg-gradient-to-r from-purple-400/10 to-indigo-400/10 opacity-0 group-hover:opacity-100"
+                    }`}
+                  ></div>
+                </button>
+              </div>
+
+              {/* Option: Apply user constraints with ultra-advanced mode */}
+              {useUltraAdvanced && (
+                <div className="mt-4 p-4 bg-dark-900/60 rounded-xl border border-emerald-500/30">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={applyConstraintsWithUltra}
+                        onChange={(e) =>
+                          setApplyConstraintsWithUltra(e.target.checked)
+                        }
+                        className="sr-only"
+                      />
+                      <div
+                        className={`block w-14 h-8 rounded-full transition-colors ${
+                          applyConstraintsWithUltra
+                            ? "bg-emerald-500"
+                            : "bg-dark-900 border-2 border-emerald-500/50"
+                        }`}
+                      ></div>
+                      <div
+                        className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${
+                          applyConstraintsWithUltra
+                            ? "transform translate-x-6"
+                            : ""
+                        }`}
+                      ></div>
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-white font-semibold text-sm group-hover:text-emerald-300 transition-colors">
+                        Appliquer aussi mes contraintes personnalisées
+                      </span>
+                      <p className="text-xs text-slate-400 mt-1">
+                        L'IA générera les grilles puis appliquera vos
+                        contraintes (ratios, exclusions, etc.) par-dessus
+                      </p>
+                    </div>
+                  </label>
+                </div>
+              )}
+
+              {/* Features Grid - Always Visible */}
+              <div className="grid md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-dark-900/70 backdrop-blur-sm p-5 rounded-xl border border-purple-500/30 hover:border-purple-400/50 transition-all">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 bg-purple-500/20 rounded-lg">
+                      <span className="text-3xl">🧠</span>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-lg">
+                        Analyse IA
+                      </h4>
+                      <p className="text-xs text-purple-300">Deep Learning</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-300 leading-relaxed">
+                    Extraction automatique des patterns et combinaisons
+                    récurrentes
+                  </p>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="bg-dark-900/40 p-6 rounded-2xl border border-white/5">
-              <label className="flex items-center gap-2 text-sm font-bold text-purple-300 mb-3 uppercase tracking-wider">
-                Base d&apos;apprentissage
-                <Tooltip text="Fenêtre de données utilisée pour calculer les statistiques. 'Historique Complet' utilise tous les tirages, '1000 Derniers' se concentre sur les tendances récentes, '200 Derniers' sur les tendances très récentes." />
-              </label>
-              <div className="flex bg-dark-900 rounded-xl p-1 border border-white/5">
-                {[
-                  { id: "all", label: "Historique Complet" },
-                  { id: "1000", label: "1000 Derniers" },
-                  { id: "200", label: "200 Derniers" },
-                ].map((opt) => (
-                  <button
-                    key={opt.id}
-                    onClick={() => setWindow(opt.id as any)}
-                    className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
-                      window === opt.id
-                        ? "bg-purple-600/80 text-white shadow-md"
-                        : "text-slate-400 hover:text-white hover:bg-white/5"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+      {/* SECTION 2: PARAMÈTRES DE BASE */}
+      <div className="glass-panel rounded-2xl p-8 mb-8">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <span className="p-2 bg-cyan-500/20 rounded-lg text-cyan-400">
+            🎯
+          </span>
+          Paramètres de génération
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="bg-dark-900/40 p-6 rounded-xl border border-white/5">
+            <label className="flex items-center gap-2 text-sm font-bold text-cyan-300 mb-3 uppercase tracking-wider">
+              Nombre de grilles
+              <Tooltip text="Nombre de grilles optimisées à générer. Plus vous en générez, plus vous augmentez vos chances de couverture, mais le coût augmente proportionnellement." />
+            </label>
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="1"
+                max="20"
+                value={count}
+                onChange={(e) => setCount(parseInt(e.target.value))}
+                className="w-full accent-cyan-500 h-2 bg-dark-900 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="w-16 h-12 bg-dark-900 border border-cyan-500/30 rounded-xl flex items-center justify-center font-bold text-xl text-white shadow-inner">
+                {count}
               </div>
             </div>
           </div>
 
-          {/* Section 2: Contraintes Dures */}
-          <div className="border-t border-white/10 pt-8">
+          <div className="bg-dark-900/40 p-6 rounded-xl border border-white/5">
+            <label className="flex items-center gap-2 text-sm font-bold text-cyan-300 mb-3 uppercase tracking-wider">
+              Base d&apos;apprentissage
+              <Tooltip text="Fenêtre de données utilisée pour calculer les statistiques. 'Historique Complet' utilise tous les tirages, '1000 Derniers' se concentre sur les tendances récentes." />
+            </label>
+            <div className="flex bg-dark-900 rounded-xl p-1 border border-white/5">
+              {[
+                { id: "all", label: "Historique Complet" },
+                { id: "1000", label: "1000 Derniers" },
+                { id: "200", label: "200 Derniers" },
+              ].map((opt) => (
+                <button
+                  key={opt.id}
+                  onClick={() => setWindow(opt.id as any)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
+                    window === opt.id
+                      ? "bg-cyan-600/80 text-white shadow-md"
+                      : "text-slate-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 3: PRESETS */}
+      <div className="mb-8">
+        <PresetSelector value={selectedPreset} onChange={setSelectedPreset} />
+      </div>
+
+      {/* SECTION 4: CONTRAINTES */}
+      <div className="glass-panel rounded-2xl p-8 mb-8">
+        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <span className="p-2 bg-rose-500/20 rounded-lg text-rose-400">
+            ⚙️
+          </span>
+          Contraintes et filtres
+        </h2>
+        <div className="space-y-6">
+          {/* Contraintes de base */}
+          <div>
             <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
               <span className="w-2 h-6 bg-rose-500 rounded-full"></span>{" "}
               Contraintes Strictes

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Ultra-Advanced API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #fff;
+        }
+        button {
+            background: #8b5cf6;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #7c3aed;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #16213e;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .loading {
+            color: #fbbf24;
+        }
+        .error {
+            color: #ef4444;
+        }
+        .success {
+            color: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Test API Ultra-Avancée</h1>
+    <button onclick="testAPI()">Tester la génération</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<span class="loading">⏳ Génération en cours...</span>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/generate-advanced', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        count: 3,
+                        constraints: {}
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    resultDiv.innerHTML = `<span class="error">❌ Erreur ${response.status}:</span>\n${JSON.stringify(data, null, 2)}`;
+                    return;
+                }
+
+                resultDiv.innerHTML = `<span class="success">✅ Succès!</span>\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Erreur réseau:</span>\n${error.message}\n\n${error.stack}`;
+            }
+        }
+    </script>
+</body>
+</html>

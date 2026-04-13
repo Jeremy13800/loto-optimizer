@@ -133,18 +133,6 @@ function checkHardConstraints(
   ) {
     return { valid: false, reason: "Even/odd ratio not 4/1" };
   }
-  if (
-    constraints.evenOddRatio === "5/0" &&
-    !(evenCount === 5 && oddCount === 0)
-  ) {
-    return { valid: false, reason: "Even/odd ratio not 5/0" };
-  }
-  if (
-    constraints.evenOddRatio === "0/5" &&
-    !(evenCount === 0 && oddCount === 5)
-  ) {
-    return { valid: false, reason: "Even/odd ratio not 0/5" };
-  }
 
   const lowCount = nums.filter((n) => n <= 24).length;
   const highCount = 5 - lowCount;
@@ -173,18 +161,6 @@ function checkHardConstraints(
   ) {
     return { valid: false, reason: "Low/high ratio not 4/1" };
   }
-  if (
-    constraints.lowHighRatio === "5/0" &&
-    !(lowCount === 5 && highCount === 0)
-  ) {
-    return { valid: false, reason: "Low/high ratio not 5/0" };
-  }
-  if (
-    constraints.lowHighRatio === "0/5" &&
-    !(lowCount === 0 && highCount === 5)
-  ) {
-    return { valid: false, reason: "Low/high ratio not 0/5" };
-  }
 
   const maxPerDecade = constraints.maxPerDecade ?? 2;
   const decadeCounts = countPerDecade(nums);
@@ -197,7 +173,7 @@ function checkHardConstraints(
     }
   }
 
-  const maxConsecutive = constraints.maxConsecutive ?? 0;
+  const maxConsecutive = constraints.maxConsecutive ?? 1;
   const consecutiveCount = countConsecutivePairs(nums);
   if (consecutiveCount > maxConsecutive) {
     return {
@@ -246,77 +222,6 @@ function checkHardConstraints(
       return {
         valid: false,
         reason: `Not enough different digit endings (${endings.size} < ${constraints.minDigitEndings})`,
-      };
-    }
-  }
-
-  // Multiples of 3 constraint
-  if (constraints.maxMultiplesOf3 !== undefined) {
-    const mult3Count = nums.filter((n) => n % 3 === 0).length;
-    if (mult3Count > constraints.maxMultiplesOf3) {
-      return {
-        valid: false,
-        reason: `Too many multiples of 3 (${mult3Count} > ${constraints.maxMultiplesOf3})`,
-      };
-    }
-  }
-
-  // Decade spread constraint
-  if (
-    constraints.minDecadeSpread !== undefined ||
-    constraints.maxDecadeSpread !== undefined
-  ) {
-    const decades = new Set(
-      nums.map((n) => {
-        if (n <= 10) return 1;
-        if (n <= 20) return 2;
-        if (n <= 30) return 3;
-        if (n <= 40) return 4;
-        return 5;
-      }),
-    );
-    if (
-      constraints.minDecadeSpread !== undefined &&
-      decades.size < constraints.minDecadeSpread
-    ) {
-      return {
-        valid: false,
-        reason: `Not enough different decades (${decades.size} < ${constraints.minDecadeSpread})`,
-      };
-    }
-    if (
-      constraints.maxDecadeSpread !== undefined &&
-      decades.size > constraints.maxDecadeSpread
-    ) {
-      return {
-        valid: false,
-        reason: `Too many different decades (${decades.size} > ${constraints.maxDecadeSpread})`,
-      };
-    }
-  }
-
-  // Very high numbers (≥40) constraint
-  if (
-    constraints.minVeryHighNumbers !== undefined ||
-    constraints.maxVeryHighNumbers !== undefined
-  ) {
-    const veryHighCount = nums.filter((n) => n >= 40).length;
-    if (
-      constraints.minVeryHighNumbers !== undefined &&
-      veryHighCount < constraints.minVeryHighNumbers
-    ) {
-      return {
-        valid: false,
-        reason: `Not enough very high numbers (${veryHighCount} < ${constraints.minVeryHighNumbers})`,
-      };
-    }
-    if (
-      constraints.maxVeryHighNumbers !== undefined &&
-      veryHighCount > constraints.maxVeryHighNumbers
-    ) {
-      return {
-        valid: false,
-        reason: `Too many very high numbers (${veryHighCount} > ${constraints.maxVeryHighNumbers})`,
       };
     }
   }
@@ -411,13 +316,12 @@ function scoreCandidate(
     score -= (minHighNumbers - highNumbers.length) * 5;
   }
 
-  // Multiples of 3 optimization (new - based on analysis)
-  const multiplesOf3 = nums.filter((n) => n % 3 === 0);
-  const maxMultiplesOf3 = constraints.maxMultiplesOf3 ?? 2;
-  if (multiplesOf3.length <= maxMultiplesOf3) {
+  // Multiples of 5 optimization (existing)
+  const maxMultiplesOf5 = constraints.maxMultiplesOf5 ?? 1;
+  if (multiplesOf5.length <= maxMultiplesOf5) {
     score += 5;
   } else {
-    score -= (multiplesOf3.length - maxMultiplesOf3) * 10;
+    score -= (multiplesOf5.length - maxMultiplesOf5) * 10;
   }
 
   // Popular numbers penalty (existing)

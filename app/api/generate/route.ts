@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Draw, GenerateConstraints } from "@/lib/types";
 import { generateGrids } from "@/lib/generator";
-import { scoreGrid } from "@/lib/stats/scoring/comprehensive-scoring";
+// import { scoreGrid } from "@/lib/stats/scoring/comprehensive-scoring";
 import { analyzeCoOccurrence } from "@/lib/stats/analysis/co-occurrence-analysis";
 
 export async function POST(request: NextRequest) {

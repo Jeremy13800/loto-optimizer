@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Draw, GenerateConstraints } from "@/lib/types";
 import { generateGrids } from "@/lib/generator";
-// import { scoreGrid } from "@/lib/stats/scoring/comprehensive-scoring";
+import { scoreGrid } from "@/lib/stats/scoring/comprehensive-scoring";
 import { analyzeCoOccurrence } from "@/lib/stats/analysis/co-occurrence-analysis";
 
 export async function POST(request: NextRequest) {
@@ -60,23 +60,33 @@ export async function POST(request: NextRequest) {
 
     const result = await generateGrids(draws, body);
 
-    // Calculate comprehensive scores for all grids
-    const coOccurrence = analyzeCoOccurrence(draws);
-    const previousDraw = draws[0] || null;
+    // Calculate comprehensive scores for all grids (with error handling)
+    let gridsWithComprehensiveScores = result.grids;
+    try {
+      const coOccurrence = analyzeCoOccurrence(draws);
+      const previousDraw = draws[0] || null;
 
-    const gridsWithComprehensiveScores = result.grids.map((grid) => ({
-      ...grid,
-      comprehensiveScore: scoreGrid(grid.nums, {
-        previousDraw,
-        topPairs: coOccurrence.topPairs,
-      }),
-    }));
+      gridsWithComprehensiveScores = result.grids.map((grid) => ({
+        ...grid,
+        comprehensiveScore: scoreGrid(grid.nums, {
+          previousDraw,
+          topPairs: coOccurrence.topPairs,
+        }),
+      }));
 
-    // Sort by comprehensive score (descending)
-    gridsWithComprehensiveScores.sort(
-      (a, b) =>
-        (b.comprehensiveScore?.total || 0) - (a.comprehensiveScore?.total || 0),
-    );
+      // Sort by comprehensive score (descending)
+      gridsWithComprehensiveScores.sort(
+        (a, b) =>
+          (b.comprehensiveScore?.total || 0) -
+          (a.comprehensiveScore?.total || 0),
+      );
+    } catch (scoringError) {
+      console.error(
+        "Scoring failed, returning grids without scores:",
+        scoringError,
+      );
+      // Return grids without scores if scoring fails
+    }
 
     return NextResponse.json({
       ...result,

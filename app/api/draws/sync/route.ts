@@ -52,12 +52,22 @@ export async function POST(request: NextRequest) {
     let updated = 0;
     const errors: string[] = [];
 
+    // Get all existing draw IDs in a single query
+    console.log("Fetching existing draws...");
+    const existingDraws = await prisma.draw.findMany({
+      select: { id: true },
+    });
+    const existingIds = new Set(existingDraws.map((d) => d.id));
+    console.log(`Found ${existingIds.size} existing draws`);
+
+    // Separate draws into new and existing
+    const newDraws: any[] = [];
+    const updates: any[] = [];
+
+    console.log("Processing draws...");
     for (const draw of validDraws) {
       try {
         const id = generateDrawId(draw);
-
-        const existing = await prisma.draw.findUnique({ where: { id } });
-
         const data = {
           id,
           dateISO: draw.dateISO,
@@ -68,20 +78,52 @@ export async function POST(request: NextRequest) {
           rawDateText: draw.rawDateText || null,
         };
 
-        if (existing) {
-          await prisma.draw.update({
-            where: { id },
-            data,
-          });
-          updated++;
+        if (existingIds.has(id)) {
+          updates.push(data);
         } else {
-          await prisma.draw.create({ data });
-          inserted++;
+          newDraws.push(data);
         }
       } catch (error) {
         errors.push(
           `Error processing draw ${draw.dateISO}: ${error instanceof Error ? error.message : "Unknown error"}`,
         );
+      }
+    }
+
+    console.log(`New draws: ${newDraws.length}, Updates: ${updates.length}`);
+
+    // Batch insert new draws
+    if (newDraws.length > 0) {
+      console.log("Inserting new draws in batch...");
+      const batchSize = 100;
+      for (let i = 0; i < newDraws.length; i += batchSize) {
+        const batch = newDraws.slice(i, i + batchSize);
+        try {
+          await prisma.draw.createMany({ data: batch, skipDuplicates: true });
+          inserted += batch.length;
+        } catch (error) {
+          console.error(`Batch insert error at ${i}:`, error);
+        }
+      }
+    }
+
+    // Batch update existing draws
+    if (updates.length > 0) {
+      console.log("Updating existing draws in batch...");
+      const batchSize = 100;
+      for (let i = 0; i < updates.length; i += batchSize) {
+        const batch = updates.slice(i, i + batchSize);
+        for (const data of batch) {
+          try {
+            await prisma.draw.update({
+              where: { id: data.id },
+              data,
+            });
+            updated++;
+          } catch (error) {
+            console.error(`Update error for ${data.id}:`, error);
+          }
+        }
       }
     }
 

@@ -25,8 +25,17 @@ export default function AnalysisPage() {
   const [window, setWindow] = useState<"all" | "1000" | "200" | "custom">(
     "all",
   );
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
+  const [customDraws, setCustomDraws] = useState(500);
+
+  // New advanced analyses states
+  const [temporalTrends, setTemporalTrends] = useState<any>(null);
+  const [correlationMatrix, setCorrelationMatrix] = useState<any>(null);
+  const [cooccurrenceHeatmap, setCooccurrenceHeatmap] = useState<any>(null);
+  const [streaksData, setStreaksData] = useState<any>(null);
+  const [predictionHeatmap, setPredictionHeatmap] = useState<any>(null);
+  const [seasonalPatterns, setSeasonalPatterns] = useState<any>(null);
+  const [extremeGaps, setExtremeGaps] = useState<any>(null);
+  const [backtestingResults, setBacktestingResults] = useState<any>(null);
 
   useEffect(() => {
     if (window !== "custom") {
@@ -34,14 +43,29 @@ export default function AnalysisPage() {
     }
   }, [window]);
 
+  useEffect(() => {
+    if (window === "custom") {
+      fetchStats();
+    }
+  }, [customDraws, window]);
+
   const fetchStats = async () => {
     setLoading(true);
     setError(null);
 
+    // Determine the number of draws based on window selection
+    const windowDraws =
+      window === "all"
+        ? 10000
+        : window === "1000"
+          ? 1000
+          : window === "200"
+            ? 200
+            : customDraws;
+
     const params = new URLSearchParams({ window });
-    if (window === "custom" && fromDate && toDate) {
-      params.append("from", fromDate);
-      params.append("to", toDate);
+    if (window === "custom") {
+      params.append("lastNDraws", customDraws.toString());
     }
 
     try {
@@ -59,6 +83,53 @@ export default function AnalysisPage() {
         const advancedData = await advancedResponse.json();
         setAdvancedAnalysis(advancedData);
       }
+
+      // Fetch new advanced analyses in parallel based on selected window
+      const cacheBuster = Date.now();
+      const [
+        temporalRes,
+        correlationRes,
+        cooccurrenceRes,
+        streaksRes,
+        predictionRes,
+        extremeGapsRes,
+        backtestingRes,
+      ] = await Promise.all([
+        fetch(
+          `/api/stats/temporal-trends?lastNDraws=${windowDraws}&_=${cacheBuster}`,
+        ),
+        fetch(
+          `/api/stats/correlation-matrix?lastNDraws=${windowDraws}&_=${cacheBuster}`,
+        ),
+        fetch(
+          `/api/stats/cooccurrence-heatmap?lastNDraws=${windowDraws}&_=${cacheBuster}`,
+        ),
+        fetch(`/api/stats/streaks?lastNDraws=${windowDraws}&_=${cacheBuster}`),
+        fetch(
+          `/api/stats/prediction-heatmap?lastNDraws=${
+            window === "all" ? 200 : windowDraws
+          }&_=${cacheBuster}`,
+        ),
+        fetch(
+          `/api/stats/extreme-gaps?lastNDraws=${windowDraws}&_=${cacheBuster}`,
+        ),
+        fetch(
+          `/api/stats/backtesting?testPeriod=${Math.min(windowDraws, 100)}&_=${cacheBuster}`,
+        ),
+      ]);
+
+      if (temporalRes.ok) setTemporalTrends(await temporalRes.json());
+      if (correlationRes.ok) setCorrelationMatrix(await correlationRes.json());
+      if (cooccurrenceRes.ok)
+        setCooccurrenceHeatmap(await cooccurrenceRes.json());
+      if (streaksRes.ok) setStreaksData(await streaksRes.json());
+      if (predictionRes.ok) setPredictionHeatmap(await predictionRes.json());
+      if (extremeGapsRes.ok) setExtremeGaps(await extremeGapsRes.json());
+      if (backtestingRes.ok) setBacktestingResults(await backtestingRes.json());
+
+      // Seasonal patterns always uses all data
+      const seasonalRes = await fetch("/api/stats/seasonal-patterns");
+      if (seasonalRes.ok) setSeasonalPatterns(await seasonalRes.json());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -67,7 +138,7 @@ export default function AnalysisPage() {
   };
 
   const handleCustomFetch = () => {
-    if (fromDate && toDate) {
+    if (customDraws > 0) {
       fetchStats();
     }
   };
@@ -96,7 +167,7 @@ export default function AnalysisPage() {
 
         <div className="flex flex-wrap gap-4 mb-6 relative z-10">
           {[
-            { id: "all", label: "Tout (2412)" },
+            { id: "all", label: "Tout les tirages " },
             { id: "1000", label: "1000 derniers" },
             { id: "200", label: "200 derniers" },
             { id: "custom", label: "Personnalisé" },
@@ -119,24 +190,15 @@ export default function AnalysisPage() {
           <div className="flex flex-col sm:flex-row gap-4 items-end relative z-10 animate-slide-up">
             <div className="w-full sm:w-auto">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Date début
+                Nombre de tirages
               </label>
               <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="w-full px-4 py-3 bg-dark-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white transition-all [color-scheme:dark]"
-              />
-            </div>
-            <div className="w-full sm:w-auto">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Date fin
-              </label>
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="w-full px-4 py-3 bg-dark-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white transition-all [color-scheme:dark]"
+                type="number"
+                min="10"
+                max="5000"
+                value={customDraws}
+                onChange={(e) => setCustomDraws(parseInt(e.target.value))}
+                className="w-full px-4 py-3 bg-dark-900/50 border border-white/10 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-white transition-all"
               />
             </div>
             <button
@@ -957,6 +1019,388 @@ export default function AnalysisPage() {
                   color="indigo"
                 />
               )}
+            </>
+          )}
+
+          {/* NOUVELLES ANALYSES PRÉDICTIVES */}
+          {predictionHeatmap && (
+            <>
+              <div className="col-span-full mt-12 mb-6">
+                <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                  <span className="text-3xl">🎯</span> Analyses Prédictives IA
+                </h2>
+                <p className="text-slate-400">
+                  Prédictions basées sur l'intelligence artificielle et
+                  l'analyse statistique avancée
+                </p>
+              </div>
+
+              {/* Heatmap de prédiction */}
+              <div className="col-span-full glass rounded-3xl p-8 border border-white/5">
+                <h3 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                  <span className="text-2xl">🔥</span> Probabilités de Sortie
+                  (Prochain Tirage)
+                </h3>
+                <p className="text-sm text-slate-400 mb-6">
+                  Combinaison de l'IA et des statistiques pour prédire les
+                  numéros les plus probables
+                </p>
+                <div className="grid grid-cols-7 gap-2">
+                  {predictionHeatmap.probabilities?.map((p: any) => (
+                    <div
+                      key={p.num}
+                      className={`text-center py-3 rounded-lg border transition-all hover:scale-110 ${
+                        p.probability > 0.025
+                          ? "bg-gradient-to-br from-orange-500/30 to-red-500/20 border-orange-500/50 text-orange-300 font-bold"
+                          : p.probability > 0.02
+                            ? "bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border-amber-500/30 text-amber-300"
+                            : "bg-dark-900/50 border-white/5 text-slate-400"
+                      }`}
+                    >
+                      <div className="text-lg">{p.num}</div>
+                      <div className="text-[10px] opacity-80">
+                        {(p.probability * 100).toFixed(1)}%
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-6 grid md:grid-cols-2 gap-6">
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4">
+                    <h4 className="font-bold text-emerald-400 mb-3">
+                      Top 15 Numéros Probables
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {predictionHeatmap.topPredictions?.map((p: any) => (
+                        <span
+                          key={p.num}
+                          className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-sm font-bold"
+                        >
+                          {p.num}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-4">
+                    <h4 className="font-bold text-rose-400 mb-3">
+                      15 Numéros Moins Probables
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {predictionHeatmap.bottomPredictions?.map((p: any) => (
+                        <span
+                          key={p.num}
+                          className="px-3 py-1 bg-rose-500/20 text-rose-300 rounded-full text-sm font-bold"
+                        >
+                          {p.num}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ANALYSES DE TENDANCES */}
+          {temporalTrends && (
+            <>
+              <div className="col-span-full mt-12 mb-6">
+                <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                  <span className="text-3xl">📈</span> Tendances Temporelles
+                </h2>
+                <p className="text-slate-400">
+                  Analyse de l'évolution des fréquences dans le temps
+                </p>
+              </div>
+
+              <div className="col-span-full grid md:grid-cols-2 gap-6">
+                <div className="glass rounded-3xl p-8 border border-white/5">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span className="text-2xl">📈</span> Numéros en Hausse
+                  </h3>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Numéros dont la fréquence augmente
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {temporalTrends.risingNumbers?.map((num: number) => (
+                      <div
+                        key={num}
+                        className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/30 to-emerald-500/20 border border-green-500/50 flex items-center justify-center font-bold text-white text-lg"
+                      >
+                        {num}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass rounded-3xl p-8 border border-white/5">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span className="text-2xl">📉</span> Numéros en Baisse
+                  </h3>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Numéros dont la fréquence diminue
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    {temporalTrends.fallingNumbers?.map((num: number) => (
+                      <div
+                        key={num}
+                        className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/30 to-rose-500/20 border border-red-500/50 flex items-center justify-center font-bold text-white text-lg"
+                      >
+                        {num}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ANALYSES DE STREAKS */}
+          {streaksData && (
+            <>
+              <div className="col-span-full mt-12 mb-6">
+                <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                  <span className="text-3xl">🔥</span> Séries Chaudes & Froides
+                </h2>
+                <p className="text-slate-400">
+                  Analyse des séries consécutives d'apparitions.{" "}
+                  <span className="text-yellow-400 font-semibold">
+                    ⚠️ Différent des "Numéros Chauds" ci-dessus basés sur la
+                    fréquence totale.
+                  </span>
+                </p>
+              </div>
+
+              <div className="col-span-full grid md:grid-cols-2 gap-6">
+                <div className="glass rounded-3xl p-8 border border-white/5">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span className="text-2xl">🔥</span> Actuellement Chauds
+                  </h3>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Numéros sortis consécutivement (série en cours)
+                  </p>
+                  {streaksData.currentlyHot?.length > 0 ? (
+                    <div className="flex flex-wrap gap-3">
+                      {streaksData.currentlyHot.map((num: number) => (
+                        <div
+                          key={num}
+                          className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/30 to-red-500/20 border border-orange-500/50 flex items-center justify-center font-bold text-white text-lg"
+                        >
+                          {num}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-500 italic">
+                      Aucun numéro en série chaude actuellement
+                    </p>
+                  )}
+                </div>
+
+                <div className="glass rounded-3xl p-8 border border-white/5">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span className="text-2xl">❄️</span> Actuellement Froids
+                  </h3>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Numéros absents depuis longtemps (série froide en cours)
+                  </p>
+                  {streaksData.currentlyCold?.length > 0 ? (
+                    <div className="flex flex-wrap gap-3">
+                      {streaksData.currentlyCold.map((num: number) => (
+                        <div
+                          key={num}
+                          className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/30 to-blue-500/20 border border-cyan-500/50 flex items-center justify-center font-bold text-white text-lg"
+                        >
+                          {num}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-500 italic">
+                      Aucun numéro en série froide actuellement
+                    </p>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ANALYSES D'ÉCARTS */}
+          {extremeGaps && (
+            <>
+              <div className="col-span-full mt-12 mb-6">
+                <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                  <span className="text-3xl">⚡</span> Écarts Extrêmes
+                </h2>
+                <p className="text-slate-400">
+                  Analyse des plus longs écarts historiques
+                </p>
+              </div>
+
+              <div className="col-span-full glass rounded-3xl p-8 border border-white/5">
+                <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                  <span className="text-2xl">📊</span> Numéros "En Retard"
+                </h3>
+                <p className="text-sm text-slate-400 mb-6">
+                  Numéros dont l'écart actuel dépasse leur moyenne historique
+                </p>
+                <div className="grid md:grid-cols-3 gap-4">
+                  {extremeGaps.dueNumbers?.slice(0, 9).map((item: any) => (
+                    <div
+                      key={item.num}
+                      className="bg-dark-900/50 border border-white/5 p-4 rounded-xl hover:bg-white/5 transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-2xl font-bold text-white">
+                          {item.num}
+                        </span>
+                        <span className="text-xs text-orange-400 font-bold">
+                          x{item.ratio.toFixed(1)}
+                        </span>
+                      </div>
+                      <div className="text-sm text-slate-400">
+                        Écart: {item.currentGap} tirages
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ANALYSES SAISONNIÈRES */}
+          {seasonalPatterns && (
+            <>
+              <div className="col-span-full mt-12 mb-6">
+                <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                  <span className="text-3xl">📅</span> Patterns Saisonniers
+                </h2>
+                <p className="text-slate-400">
+                  Analyse des fréquences par mois et jour de la semaine
+                </p>
+              </div>
+
+              <div className="col-span-full grid md:grid-cols-2 gap-6">
+                <div className="glass rounded-3xl p-8 border border-white/5">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span className="text-2xl">📆</span> Meilleurs Mois
+                  </h3>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Mois avec les sommes moyennes les plus élevées
+                  </p>
+                  <div className="space-y-3">
+                    {seasonalPatterns.bestMonths?.map((m: any) => (
+                      <div
+                        key={m.month}
+                        className="flex items-center justify-between bg-dark-900/50 p-3 rounded-xl"
+                      >
+                        <span className="text-white font-medium">
+                          {m.monthName}
+                        </span>
+                        <span className="text-emerald-400 font-bold">
+                          {m.averageSum.toFixed(0)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="glass rounded-3xl p-8 border border-white/5">
+                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-3">
+                    <span className="text-2xl">📊</span> Meilleurs Jours
+                  </h3>
+                  <p className="text-sm text-slate-400 mb-4">
+                    Jours avec les sommes moyennes les plus élevées
+                  </p>
+                  <div className="space-y-3">
+                    {seasonalPatterns.bestDays?.map((d: any) => (
+                      <div
+                        key={d.day}
+                        className="flex items-center justify-between bg-dark-900/50 p-3 rounded-xl"
+                      >
+                        <span className="text-white font-medium">
+                          {d.dayName}
+                        </span>
+                        <span className="text-emerald-400 font-bold">
+                          {d.averageSum.toFixed(0)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* BACKTESTING */}
+          {backtestingResults && (
+            <>
+              <div className="col-span-full mt-12 mb-6">
+                <h2 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                  <span className="text-3xl">🧪</span> Backtesting de Stratégies
+                </h2>
+                <p className="text-slate-400">
+                  Test de différentes stratégies sur l'historique
+                </p>
+              </div>
+
+              <div className="col-span-full glass rounded-3xl p-8 border border-white/5">
+                <div className="bg-gradient-to-r from-primary-500/20 to-blue-500/10 border border-primary-500/30 rounded-xl p-4 mb-6">
+                  <h3 className="font-bold text-primary-300 text-lg">
+                    💡 {backtestingResults.recommendation}
+                  </h3>
+                </div>
+                <div className="space-y-4">
+                  {backtestingResults.strategies?.map(
+                    (strategy: any, index: number) => (
+                      <div
+                        key={strategy.name}
+                        className={`bg-dark-900/50 border p-5 rounded-xl transition-all ${
+                          index === 0
+                            ? "border-emerald-500/50 bg-emerald-500/10"
+                            : "border-white/5"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h4 className="font-bold text-white text-lg">
+                              {strategy.name}
+                            </h4>
+                            <p className="text-sm text-slate-400">
+                              {strategy.description}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <div
+                              className={`text-2xl font-bold ${
+                                index === 0 ? "text-emerald-400" : "text-white"
+                              }`}
+                            >
+                              {strategy.winRate.toFixed(1)}%
+                            </div>
+                            <div className="text-xs text-slate-400">
+                              Taux de réussite
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-6 text-sm">
+                          <div>
+                            <span className="text-slate-400">Victoires:</span>
+                            <span className="text-white ml-2 font-bold">
+                              {strategy.totalWins}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-slate-400">Meilleur:</span>
+                            <span className="text-emerald-400 ml-2 font-bold">
+                              {strategy.bestDraw.matched}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
             </>
           )}
         </div>

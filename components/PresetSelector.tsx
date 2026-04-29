@@ -15,25 +15,25 @@ interface PresetSelectorProps {
 
 export default function PresetSelector({ value, onChange }: PresetSelectorProps) {
   const presets = getAllPresets();
-  
+
   return (
     <div className="space-y-3">
       <label className="text-sm font-medium text-slate-400">
         Profil de génération
       </label>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {presets.map((preset) => {
           const isSelected = value === preset.value;
-          
+
           return (
             <button
               key={preset.value}
               onClick={() => onChange(preset.value)}
               className={`
                 p-4 rounded-xl border-2 transition-all text-left
-                ${isSelected 
-                  ? 'border-primary-500 bg-primary-500/10' 
+                ${isSelected
+                  ? 'border-primary-500 bg-primary-500/10'
                   : 'border-white/10 bg-dark-900/60 hover:border-white/20'
                 }
               `}
@@ -55,11 +55,11 @@ export default function PresetSelector({ value, onChange }: PresetSelectorProps)
           );
         })}
       </div>
-      
+
       {value !== 'custom' && (
         <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
           <p className="text-xs text-blue-300">
-            💡 <strong>Astuce :</strong> Vous pouvez modifier les paramètres après avoir sélectionné un profil. 
+            💡 <strong>Astuce :</strong> Vous pouvez modifier les paramètres après avoir sélectionné un profil.
             Le profil passera automatiquement en mode "Personnalisé".
           </p>
         </div>

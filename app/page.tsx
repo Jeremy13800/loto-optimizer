@@ -100,12 +100,14 @@ export default function Home() {
           </div>
 
           {syncing && (
-            <div className="mt-6 p-4 bg-primary-500/10 border border-primary-500/30 rounded-xl animate-fade-in flex items-center gap-3">
-              <span className="animate-spin h-5 w-5 border-2 border-primary-400 border-t-transparent rounded-full"></span>
-              <span className="text-primary-300 text-sm font-medium">
-                Synchronisation en cours... Veuillez patienter environ 30
-                secondes.
-              </span>
+            <div className="mt-6 p-6 bg-primary-500/10 border border-primary-500/30 rounded-xl animate-fade-in">
+              <div className="flex items-center justify-center gap-4">
+                <span className="animate-spin h-8 w-8 border-3 border-primary-400 border-t-transparent rounded-full"></span>
+                <span className="text-primary-300 text-xl font-bold">
+                  Synchronisation en cours... Veuillez patienter quelques
+                  secondes
+                </span>
+              </div>
             </div>
           )}
 

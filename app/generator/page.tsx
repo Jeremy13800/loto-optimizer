@@ -25,6 +25,7 @@ export default function GeneratorPage() {
     null,
   );
 
+  // ============ BASIC GENERATION CONSTRAINTS ============
   const [count, setCount] = useState(5);
   const [window, setWindow] = useState<"all" | "1000" | "200">("all");
   const [excludePrevious, setExcludePrevious] = useState(true);
@@ -43,7 +44,7 @@ export default function GeneratorPage() {
   const [avoidChances, setAvoidChances] = useState("");
   const [maxOverlap, setMaxOverlap] = useState(1);
 
-  // Advanced parameters
+  // ============ ADVANCED NUMBER PATTERNS ============
   const [minPrimes, setMinPrimes] = useState(1);
   const [maxPrimes, setMaxPrimes] = useState(2);
   const [minDecadeSpread, setMinDecadeSpread] = useState(3);
@@ -62,7 +63,7 @@ export default function GeneratorPage() {
   const [targetSumMax, setTargetSumMax] = useState(0);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // New advanced parameters
+  // ============ ULTRA-ADVANCED CONSTRAINTS ============
   const [selectedPreset, setSelectedPreset] = useState<GridPreset>("custom");
   const [centerOfGravityMin, setCenterOfGravityMin] = useState(22);
   const [centerOfGravityMax, setCenterOfGravityMax] = useState(28);
@@ -98,6 +99,268 @@ export default function GeneratorPage() {
   const [useUltraAdvanced, setUseUltraAdvanced] = useState(false);
   const [applyConstraintsWithUltra, setApplyConstraintsWithUltra] =
     useState(false);
+
+  const applyPresetConstraints = (preset: GridPreset) => {
+    // Always show advanced section when a preset is selected
+    setShowAdvanced(true);
+
+    switch (preset) {
+      case "balanced":
+        // Équilibré : statistiques moyennes
+        setEvenOddRatio("2/3");
+        setLowHighRatio("2/3");
+        setMinRange(20);
+        setMinHighNumbers(2);
+        setMaxPerDecade(2);
+        setCenterOfGravityMin(22);
+        setCenterOfGravityMax(28);
+        setDispersionProfile("balanced");
+        setAvgGapMin(8);
+        setAvgGapMax(14);
+        setDecadeProfile("free");
+        setAntiHumanBias(false);
+        setRecencyMode("light");
+        setMinPrimes(1);
+        setMaxPrimes(2);
+        setMinDecadeSpread(3);
+        setMaxDecadeSpread(4);
+        setMinHotNumbers(0);
+        setMaxHotNumbers(2);
+        setMinColdNumbers(0);
+        setMaxColdNumbers(2);
+        setMinVeryHighNumbers(0);
+        setMaxVeryHighNumbers(2);
+        setMinDigitEndings(4);
+        setFavorTriplets(true);
+        setMinConsecutiveGap(1);
+        setMaxConsecutiveGap(15);
+        setTargetSumMin(0);
+        setTargetSumMax(0);
+        setMinRepetitions(0);
+        setMaxRepetitions(1);
+        setFavorExactlyOne(false);
+        setEnableFrequentPairs(true);
+        setPairBonusWeight(3);
+        setMaxPairsPerGrid(2);
+        setEnableModular(false);
+        break;
+
+      case "dispersed":
+        // Dispersé : numéros bien étalés
+        setEvenOddRatio("2/3");
+        setLowHighRatio("2/3");
+        setMinRange(35);
+        setMinHighNumbers(3);
+        setMaxPerDecade(1);
+        setCenterOfGravityMin(20);
+        setCenterOfGravityMax(30);
+        setDispersionProfile("dispersed");
+        setAvgGapMin(10);
+        setAvgGapMax(18);
+        setDecadeProfile("1-1-1-1-1");
+        setAntiHumanBias(false);
+        setRecencyMode("uniform");
+        setMinPrimes(1);
+        setMaxPrimes(2);
+        setMinDecadeSpread(4);
+        setMaxDecadeSpread(5);
+        setMinVeryHighNumbers(1);
+        setMaxVeryHighNumbers(3);
+        setMinDigitEndings(5);
+        setFavorTriplets(false);
+        setMinConsecutiveGap(2);
+        setMaxConsecutiveGap(20);
+        setTargetSumMin(0);
+        setTargetSumMax(0);
+        setMinRepetitions(0);
+        setMaxRepetitions(1);
+        setFavorExactlyOne(false);
+        setEnableFrequentPairs(false);
+        setPairBonusWeight(2);
+        setMaxPairsPerGrid(1);
+        setEnableModular(false);
+        break;
+
+      case "anti-share":
+        // Anti-partage : éviter les patterns humains
+        setEvenOddRatio("2/3");
+        setLowHighRatio("2/3");
+        setMinRange(25);
+        setMinHighNumbers(2);
+        setMaxPerDecade(2);
+        setCenterOfGravityMin(22);
+        setCenterOfGravityMax(28);
+        setDispersionProfile("balanced");
+        setAvgGapMin(8);
+        setAvgGapMax(14);
+        setDecadeProfile("free");
+        setAntiHumanBias(true);
+        setPenalizeSequences(true);
+        setPenalizeProgressions(true);
+        setPenalizeBirthday(true);
+        setPenalizeMultiplesOf5(true);
+        setPenalizeSameEndings(true);
+        setPenaltyWeight(2.0);
+        setRecencyMode("light");
+        setMinPrimes(1);
+        setMaxPrimes(2);
+        setMinDecadeSpread(3);
+        setMaxDecadeSpread(4);
+        setMinVeryHighNumbers(0);
+        setMaxVeryHighNumbers(2);
+        setMinDigitEndings(5);
+        setFavorTriplets(false);
+        setMinConsecutiveGap(1);
+        setMaxConsecutiveGap(15);
+        setTargetSumMin(0);
+        setTargetSumMax(0);
+        setMinRepetitions(0);
+        setMaxRepetitions(1);
+        setFavorExactlyOne(false);
+        setEnableFrequentPairs(false);
+        setPairBonusWeight(1);
+        setMaxPairsPerGrid(0);
+        setEnableModular(false);
+        break;
+
+      case "hot-cold-mix":
+        // Mix chaud/froid : pondération temporelle forte
+        setEvenOddRatio("3/2");
+        setLowHighRatio("3/2");
+        setMinRange(25);
+        setMinHighNumbers(2);
+        setMaxPerDecade(2);
+        setCenterOfGravityMin(21);
+        setCenterOfGravityMax(29);
+        setDispersionProfile("balanced");
+        setAvgGapMin(7);
+        setAvgGapMax(15);
+        setDecadeProfile("2-1-1-1");
+        setAntiHumanBias(false);
+        setRecencyMode("strong");
+        setMinPrimes(1);
+        setMaxPrimes(2);
+        setMinDecadeSpread(3);
+        setMaxDecadeSpread(4);
+        setMinHotNumbers(2);
+        setMaxHotNumbers(4);
+        setMinColdNumbers(1);
+        setMaxColdNumbers(2);
+        setMinVeryHighNumbers(0);
+        setMaxVeryHighNumbers(2);
+        setMinDigitEndings(4);
+        setFavorTriplets(true);
+        setMinConsecutiveGap(1);
+        setMaxConsecutiveGap(15);
+        setTargetSumMin(0);
+        setTargetSumMax(0);
+        setMinRepetitions(0);
+        setMaxRepetitions(1);
+        setFavorExactlyOne(false);
+        setEnableFrequentPairs(true);
+        setPairBonusWeight(4);
+        setMaxPairsPerGrid(2);
+        setEnableModular(false);
+        break;
+
+      case "conservative":
+        // Conservateur : très proche des stats historiques
+        setEvenOddRatio("3/2");
+        setLowHighRatio("3/2");
+        setMinRange(20);
+        setMinHighNumbers(2);
+        setMaxPerDecade(2);
+        setCenterOfGravityMin(23);
+        setCenterOfGravityMax(27);
+        setDispersionProfile("balanced");
+        setAvgGapMin(7);
+        setAvgGapMax(12);
+        setDecadeProfile("2-1-1-1");
+        setAntiHumanBias(false);
+        setRecencyMode("light");
+        setMinPrimes(1);
+        setMaxPrimes(2);
+        setMinDecadeSpread(3);
+        setMaxDecadeSpread(4);
+        setMinVeryHighNumbers(0);
+        setMaxVeryHighNumbers(2);
+        setMinHotNumbers(0);
+        setMaxHotNumbers(2);
+        setMinColdNumbers(0);
+        setMaxColdNumbers(2);
+        setMinDigitEndings(4);
+        setFavorTriplets(true);
+        setMinConsecutiveGap(1);
+        setMaxConsecutiveGap(12);
+        setTargetSumMin(0);
+        setTargetSumMax(0);
+        setMinRepetitions(0);
+        setMaxRepetitions(1);
+        setFavorExactlyOne(false);
+        setEnableFrequentPairs(true);
+        setPairBonusWeight(2);
+        setMaxPairsPerGrid(2);
+        setEnableModular(false);
+        break;
+
+      case "experimental":
+        // Expérimental : algorithmes avancés
+        setEvenOddRatio("");
+        setLowHighRatio("");
+        setMinRange(15);
+        setMinHighNumbers(1);
+        setMaxPerDecade(3);
+        setCenterOfGravityMin(20);
+        setCenterOfGravityMax(30);
+        setDispersionProfile("free");
+        setAvgGapMin(5);
+        setAvgGapMax(20);
+        setDecadeProfile("free");
+        setAntiHumanBias(true);
+        setPenalizeSequences(false);
+        setPenalizeProgressions(false);
+        setPenalizeBirthday(false);
+        setPenalizeMultiplesOf5(false);
+        setPenalizeSameEndings(false);
+        setPenaltyWeight(0.5);
+        setRecencyMode("exponential");
+        setMinPrimes(0);
+        setMaxPrimes(3);
+        setMinDecadeSpread(2);
+        setMaxDecadeSpread(5);
+        setMinVeryHighNumbers(0);
+        setMaxVeryHighNumbers(3);
+        setMinHotNumbers(0);
+        setMaxHotNumbers(3);
+        setMinColdNumbers(0);
+        setMaxColdNumbers(3);
+        setMinDigitEndings(3);
+        setFavorTriplets(false);
+        setMinConsecutiveGap(1);
+        setMaxConsecutiveGap(20);
+        setTargetSumMin(0);
+        setTargetSumMax(0);
+        setMinRepetitions(0);
+        setMaxRepetitions(2);
+        setFavorExactlyOne(false);
+        setEnableFrequentPairs(true);
+        setPairBonusWeight(5);
+        setMaxPairsPerGrid(3);
+        setEnableModular(true);
+        break;
+
+      case "custom":
+        // Custom : ne pas changer les valeurs
+        break;
+    }
+  };
+
+  const handlePresetChange = (preset: GridPreset) => {
+    setSelectedPreset(preset);
+    if (preset !== "custom") {
+      applyPresetConstraints(preset);
+    }
+  };
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -224,7 +487,17 @@ export default function GeneratorPage() {
       const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(useUltraAdvanced ? { count } : constraints),
+        body: JSON.stringify(
+          useUltraAdvanced
+            ? {
+                count,
+                constraints: applyConstraintsWithUltra
+                  ? constraints
+                  : undefined,
+                applyConstraints: applyConstraintsWithUltra,
+              }
+            : constraints,
+        ),
       });
 
       if (!response.ok) {
@@ -345,68 +618,48 @@ export default function GeneratorPage() {
     const highCount = 5 - lowCount;
     const decades = new Set(nums.map((n) => Math.floor((n - 1) / 10)));
 
-    explanations.push(`📊 **Analyse Grille ${index + 1}**`);
+    explanations.push(`📊 **Grille ${index + 1}**`);
     explanations.push(
       `Score: ${grid.score.toFixed(1)}/100 | Somme: ${sum} | Amplitude: ${range}`,
     );
     explanations.push("");
-    explanations.push(`✨ **POURQUOI CETTE GRILLE EST OPTIMISÉE**`);
 
-    const optimizationReasons: string[] = [];
+    // Points forts de la grille
+    explanations.push(`**Points forts**`);
+    const points: string[] = [];
 
-    if (sum >= 104 && sum <= 145) {
-      optimizationReasons.push(
-        `Somme ${sum} est dans la plage optimale (104-145) où 50% des tirages historiques se situent`,
-      );
-    } else if (sum >= 86 && sum <= 163) {
-      optimizationReasons.push(
-        `Somme ${sum} est dans une plage acceptable (86-163)`,
-      );
+    if (sum >= 59 && sum <= 189) {
+      points.push(`Somme ${sum} dans plage optimale (59-189)`);
     }
 
-    if (
-      (evenCount === 2 && oddCount === 3) ||
-      (evenCount === 3 && oddCount === 2)
-    ) {
-      optimizationReasons.push(
-        `Ratio ${evenCount}/${oddCount} pair/impair correspond aux configurations les plus fréquentes (65% des tirages)`,
-      );
+    if (evenCount === 2 || evenCount === 3) {
+      points.push(`Ratio pair/impair ${evenCount}/${oddCount} (fréquent)`);
     }
 
-    if (
-      (lowCount === 2 && highCount === 3) ||
-      (lowCount === 3 && highCount === 2)
-    ) {
-      optimizationReasons.push(
-        `Répartition ${lowCount}/${highCount} bas/haut assure une couverture équilibrée de toute la plage 1-49`,
-      );
+    if (lowCount === 3 || lowCount === 2) {
+      points.push(`Répartition bas/haut ${lowCount}/${highCount} (équilibré)`);
     }
 
     if (decades.size >= 3) {
-      optimizationReasons.push(
-        `${decades.size} dizaines couvertes = excellente diversité, évite la concentration sur une seule tranche`,
-      );
+      points.push(`${decades.size} dizaines couvertes (diversité)`);
     }
 
-    if (range >= 20 && range <= 35) {
-      optimizationReasons.push(
-        `Amplitude ${range} = dispersion idéale, ni trop serrée ni trop étalée`,
-      );
+    if (range >= 25 && range <= 35) {
+      points.push(`Amplitude ${range} (dispersion idéale)`);
     }
 
     const hasConsecutive = sortedNums.some(
       (n, i) => i > 0 && n - sortedNums[i - 1] === 1,
     );
     if (!hasConsecutive) {
-      optimizationReasons.push(
-        `Aucun numéro consécutif = respecte la règle statistique que les numéros qui se suivent sortent rarement ensemble`,
-      );
+      points.push(`Pas de numéros consécutifs`);
     }
 
-    optimizationReasons.forEach((reason) => explanations.push(`• ${reason}`));
+    points.forEach((p) => explanations.push(`• ${p}`));
     explanations.push("");
-    explanations.push(`🎯 **ANALYSE DÉTAILLÉE DES NUMÉROS**`);
 
+    // Analyse des numéros
+    explanations.push(`**Numéros**`);
     sortedNums.forEach((num, i) => {
       const isLow = num <= 24;
       const isEven = num % 2 === 0;
@@ -416,61 +669,18 @@ export default function GeneratorPage() {
       const decade = Math.floor((num - 1) / 10);
       const decadeNames = ["1-10", "11-20", "21-30", "31-40", "41-49"];
 
-      let reason = `**${num}** : `;
-      const reasons: string[] = [];
+      const parts: string[] = [];
 
-      if (i === 0) {
-        reasons.push(
-          `numéro le plus bas (${num}) = ancre la grille dans la partie basse pour assurer une couverture minimale`,
-        );
-      } else if (i === 4) {
-        reasons.push(
-          `numéro le plus haut (${num}) = étend la grille vers le haut pour maximiser l'amplitude`,
-        );
-      } else if (num >= 20 && num <= 30) {
-        reasons.push(
-          `position centrale (${num}) = sert de pivot équilibrant entre bas et haut`,
-        );
-      }
+      if (i === 0) parts.push("numéro le plus bas");
+      else if (i === 4) parts.push("numéro le plus haut");
+      else if (num >= 20 && num <= 30) parts.push("position centrale");
 
-      if (isLow) {
-        reasons.push(
-          `tranche basse (1-24) = couvre la moitié inférieure de la plage de numéros`,
-        );
-      } else {
-        reasons.push(
-          `tranche haute (25-49) = couvre la moitié supérieure de la plage de numéros`,
-        );
-      }
+      parts.push(isLow ? "tranche basse" : "tranche haute");
+      parts.push(isEven ? "pair" : "impair");
+      if (isPrime) parts.push("premier");
+      parts.push(`dizaine ${decadeNames[decade]}`);
 
-      reasons.push(
-        isEven
-          ? `numéro pair = contribue à l'équilibre pair/impair ${evenCount}/${oddCount}`
-          : `numéro impair = contribue à l'équilibre pair/impair ${evenCount}/${oddCount}`,
-      );
-
-      if (isPrime) {
-        reasons.push(
-          `nombre premier = type de numéro statistiquement significatif (70% des tirages ont 1-2 premiers)`,
-        );
-      }
-
-      reasons.push(
-        `dizaine ${decadeNames[decade]} = participe à la diversification sur ${decades.size} décennies différentes`,
-      );
-
-      if (i < 2) {
-        reasons.push(
-          `priorisé car fréquence élevée dans l'historique = numéros "chauds" avec plus de probabilité de sortie`,
-        );
-      } else {
-        reasons.push(
-          `fréquence modérée = équilibre entre numéros chauds et froids pour diversifier`,
-        );
-      }
-
-      reason += reasons.join(". ");
-      explanations.push(reason);
+      explanations.push(`**${num}** : ${parts.join(", ")}`);
     });
 
     explanations.push("");
@@ -478,19 +688,10 @@ export default function GeneratorPage() {
       `🍀 **Numéro Chance ${grid.chance}** : sélectionné aléatoirement sur distribution uniforme (1-10)`,
     );
     explanations.push("");
-    explanations.push(`🎲 **RÉSUMÉ STRATÉGIQUE**`);
-    explanations.push(`Cette grille est optimisée car :`);
+    explanations.push(`**Résumé**`);
     explanations.push(
-      `• Elle respecte les distributions statistiques les plus fréquentes historiquement`,
+      `Grille optimisée : respecte les statistiques historiques, couvre toute la plage 1-49, équilibre les ratios et diversifie les dizaines.`,
     );
-    explanations.push(
-      `• Elle maximise la couverture de la plage de numéros (1-49)`,
-    );
-    explanations.push(`• Elle équilibre les ratios pair/impair et bas/haut`);
-    explanations.push(
-      `• Elle diversifie les dizaines pour éviter la concentration`,
-    );
-    explanations.push(`• Elle évite les pièges comme les numéros consécutifs`);
 
     return explanations.join("\n");
   };
@@ -570,11 +771,11 @@ export default function GeneratorPage() {
                     <div className="flex flex-wrap gap-2">
                       <div className="group relative">
                         <span className="px-3 py-1.5 bg-purple-500/30 text-purple-200 text-sm rounded-lg border border-purple-400/40 font-semibold cursor-help">
-                          🧠 Patterns Avancés
+                          Patterns Avancés
                         </span>
                         <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-purple-500/50 rounded-xl shadow-2xl z-50">
                           <p className="text-xs text-purple-200 font-bold mb-2">
-                            🧠 Patterns Avancés
+                            Patterns Avancés
                           </p>
                           <p className="text-xs text-slate-300 leading-relaxed">
                             Détection automatique des paires et triplets de
@@ -587,11 +788,11 @@ export default function GeneratorPage() {
                       </div>
                       <div className="group relative">
                         <span className="px-3 py-1.5 bg-emerald-500/30 text-emerald-200 text-sm rounded-lg border border-emerald-400/40 font-semibold cursor-help">
-                          🔄 Cycles Temporels
+                          Cycles Temporels
                         </span>
                         <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-emerald-500/50 rounded-xl shadow-2xl z-50">
                           <p className="text-xs text-emerald-200 font-bold mb-2">
-                            🔄 Cycles Temporels
+                            Cycles Temporels
                           </p>
                           <p className="text-xs text-slate-300 leading-relaxed">
                             Analyse de l'intégralité de l'historique des tirages
@@ -604,11 +805,11 @@ export default function GeneratorPage() {
                       </div>
                       <div className="group relative">
                         <span className="px-3 py-1.5 bg-cyan-500/30 text-cyan-200 text-sm rounded-lg border border-cyan-400/40 font-semibold cursor-help">
-                          ⚖️ Poids Adaptatifs
+                          Poids Adaptatifs
                         </span>
                         <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-cyan-500/50 rounded-xl shadow-2xl z-50">
                           <p className="text-xs text-cyan-200 font-bold mb-2">
-                            ⚖️ Poids Adaptatifs
+                            Poids Adaptatifs
                           </p>
                           <p className="text-xs text-slate-300 leading-relaxed">
                             Calcul intelligent de la probabilité de sortie de
@@ -622,11 +823,11 @@ export default function GeneratorPage() {
                       </div>
                       <div className="group relative">
                         <span className="px-3 py-1.5 bg-pink-500/30 text-pink-200 text-sm rounded-lg border border-pink-400/40 font-semibold cursor-help">
-                          ✅ Validation Historique
+                          Validation Historique
                         </span>
                         <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-pink-500/50 rounded-xl shadow-2xl z-50">
                           <p className="text-xs text-pink-200 font-bold mb-2">
-                            ✅ Validation Historique
+                            Validation Historique
                           </p>
                           <p className="text-xs text-slate-300 leading-relaxed">
                             Vérification stricte de chaque grille générée contre
@@ -638,11 +839,11 @@ export default function GeneratorPage() {
                       </div>
                       <div className="group relative">
                         <span className="px-3 py-1.5 bg-indigo-500/30 text-indigo-200 text-sm rounded-lg border border-indigo-400/40 font-semibold cursor-help">
-                          🎯 Scoring Multi-Axes
+                          Scoring Multi-Axes
                         </span>
                         <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-80 p-4 bg-dark-900 border border-indigo-500/50 rounded-xl shadow-2xl z-50">
                           <p className="text-xs text-indigo-200 font-bold mb-2">
-                            🎯 Scoring Multi-Axes
+                            Scoring Multi-Axes
                           </p>
                           <p className="text-xs text-slate-300 leading-relaxed">
                             Attribution d'un score de qualité à chaque grille
@@ -762,6 +963,7 @@ export default function GeneratorPage() {
         </div>
       </div>
 
+      {/* ============ SECTION 2: BASIC GENERATION PARAMETERS ============ */}
       {/* SECTION 2: PARAMÈTRES DE BASE */}
       <div className="glass-panel rounded-2xl p-8 mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
@@ -819,11 +1021,13 @@ export default function GeneratorPage() {
         </div>
       </div>
 
+      {/* ============ SECTION 3: PRESETS ============ */}
       {/* SECTION 3: PRESETS */}
       <div className="mb-8">
-        <PresetSelector value={selectedPreset} onChange={setSelectedPreset} />
+        <PresetSelector value={selectedPreset} onChange={handlePresetChange} />
       </div>
 
+      {/* ============ SECTION 4: CONSTRAINTS AND FILTERS ============ */}
       {/* SECTION 4: CONTRAINTES */}
       <div className="glass-panel rounded-2xl p-8 mb-8">
         <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
@@ -1031,6 +1235,7 @@ export default function GeneratorPage() {
             </div>
           </div>
 
+          {/* ============ SUBSECTION: ADVANCED NUMBER PATTERNS ============ */}
           {/* Section 4: Paramètres Avancés */}
           <div className="border-t border-white/10 pt-8">
             <button
@@ -1417,6 +1622,7 @@ export default function GeneratorPage() {
                   </div>
                 </div>
 
+                {/* ============ SUBSECTION: ULTRA-ADVANCED CONSTRAINTS ============ */}
                 {/* NOUVEAUX ONGLETS AVANCÉS */}
                 <div className="border-t border-white/10 pt-6 mt-6">
                   <h4 className="text-lg font-bold text-white mb-4">
@@ -1454,7 +1660,7 @@ export default function GeneratorPage() {
                         <div>
                           <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
                             Centre de gravité min
-                            <Tooltip text="Moyenne des 5 numéros. Optimal: 22-28" />
+                            <Tooltip text="Moyenne des 5 numéros. Exemple: grille [1,2,3,4,5] = moyenne 3. Optimal entre 22 et 28." />
                           </label>
                           <input
                             type="number"
@@ -1470,6 +1676,7 @@ export default function GeneratorPage() {
                         <div>
                           <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2">
                             Centre de gravité max
+                            <Tooltip text="Moyenne maximale des 5 numéros. Garde les grilles dans une zone centrale de la plage 1-49." />
                           </label>
                           <input
                             type="number"
@@ -1485,8 +1692,12 @@ export default function GeneratorPage() {
                       </div>
                       <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
                         <h4 className="text-sm font-semibold text-blue-300 mb-2">
-                          Répétition avec tirage précédent
+                          Répétition avec le dernier tirage
                         </h4>
+                        <p className="text-xs text-slate-400 mb-3">
+                          Combien de numéros peuvent être identiques au tirage
+                          précédent ?
+                        </p>
                         <div className="grid md:grid-cols-3 gap-4">
                           <div>
                             <label className="text-xs text-slate-400 mb-1 block">
@@ -1542,8 +1753,9 @@ export default function GeneratorPage() {
                   {activeTab === "dispersion" && (
                     <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-6 space-y-6 animate-fade-in">
                       <div>
-                        <label className="text-sm font-medium text-slate-400 mb-2 block">
+                        <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2 block">
                           Profil de dispersion
+                          <Tooltip text="Comment les numéros sont répartis dans la grille. Compact = numéros proches, Dispersé = numéros éloignés." />
                         </label>
                         <select
                           value={dispersionProfile}
@@ -1554,16 +1766,25 @@ export default function GeneratorPage() {
                           }
                           className="w-full px-4 py-3 bg-dark-900/60 border border-purple-500/30 rounded-xl text-white"
                         >
-                          <option value="free">Libre</option>
-                          <option value="compact">Compact</option>
-                          <option value="balanced">Équilibré</option>
-                          <option value="dispersed">Dispersé</option>
+                          <option value="free">
+                            Libre (pas de contrainte)
+                          </option>
+                          <option value="compact">
+                            Compact (numéros proches)
+                          </option>
+                          <option value="balanced">
+                            Équilibré (répartition moyenne)
+                          </option>
+                          <option value="dispersed">
+                            Dispersé (numéros éloignés)
+                          </option>
                         </select>
                       </div>
                       <div className="grid md:grid-cols-2 gap-6">
                         <div>
-                          <label className="text-sm font-medium text-slate-400 mb-2 block">
+                          <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2 block">
                             Écart moyen min
+                            <Tooltip text="Écart moyen minimum entre les numéros. Plus c'est élevé, plus les numéros sont éloignés." />
                           </label>
                           <input
                             type="number"
@@ -1577,8 +1798,9 @@ export default function GeneratorPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-slate-400 mb-2 block">
+                          <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2 block">
                             Écart moyen max
+                            <Tooltip text="Écart moyen maximum entre les numéros. Limite l'éloignement des numéros." />
                           </label>
                           <input
                             type="number"
@@ -1599,8 +1821,9 @@ export default function GeneratorPage() {
                   {activeTab === "distribution" && (
                     <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-6 space-y-6 animate-fade-in">
                       <div>
-                        <label className="text-sm font-medium text-slate-400 mb-2 block">
+                        <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2 block">
                           Profil de dizaines
+                          <Tooltip text="Répartition des numéros par tranche de 10 (1-10, 11-20, etc.). Exemple: 2-1-1-1 = 1 dizaine avec 2 numéros, 3 dizaines avec 1 numéro." />
                         </label>
                         <select
                           value={decadeProfile}
@@ -1609,17 +1832,28 @@ export default function GeneratorPage() {
                           }
                           className="w-full px-4 py-3 bg-dark-900/60 border border-green-500/30 rounded-xl text-white"
                         >
-                          <option value="free">Libre</option>
-                          <option value="1-1-1-1-1">1-1-1-1-1</option>
-                          <option value="2-1-1-1">2-1-1-1</option>
-                          <option value="2-2-1">2-2-1</option>
-                          <option value="3-1-1">3-1-1</option>
-                          <option value="3-2">3-2</option>
+                          <option value="free">
+                            Libre (pas de contrainte)
+                          </option>
+                          <option value="1-1-1-1-1">
+                            1-1-1-1-1 (5 dizaines différentes)
+                          </option>
+                          <option value="2-1-1-1">
+                            2-1-1-1 (4 dizaines, une avec 2)
+                          </option>
+                          <option value="2-2-1">
+                            2-2-1 (3 dizaines, deux avec 2)
+                          </option>
+                          <option value="3-1-1">
+                            3-1-1 (3 dizaines, une avec 3)
+                          </option>
+                          <option value="3-2">3-2 (2 dizaines, 3 et 2)</option>
                         </select>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-slate-400 mb-2 block">
+                        <label className="flex items-center gap-2 text-sm font-medium text-slate-400 mb-2 block">
                           Bonus profil ({decadeBonus})
+                          <Tooltip text="Importance donnée au respect du profil de dizaines. Plus c'est élevé, plus le générateur essaiera de suivre ce profil." />
                         </label>
                         <input
                           type="range"
@@ -1646,9 +1880,14 @@ export default function GeneratorPage() {
                           className="w-6 h-6 rounded"
                         />
                         <label className="text-base font-semibold text-red-300">
-                          Activer anti-biais
+                          Activer anti-biais humain
                         </label>
+                        <Tooltip text="Évite les combinaisons que les humains choisissent souvent. Si vous gagnez, le gain sera partagé avec moins de personnes." />
                       </div>
+                      <p className="text-xs text-slate-400">
+                        L'anti-biais évite les patterns populaires que beaucoup
+                        de joueurs utilisent.
+                      </p>
                       {antiHumanBias && (
                         <div className="space-y-2">
                           <label className="flex items-center gap-3 p-2 bg-dark-900/40 rounded-lg">
@@ -1662,6 +1901,7 @@ export default function GeneratorPage() {
                             />
                             <span className="text-sm text-slate-300">
                               Séquences (1,2,3)
+                              <Tooltip text="Évite les suites comme 1-2-3 ou 10-11-12 que beaucoup de joueurs choisissent." />
                             </span>
                           </label>
                           <label className="flex items-center gap-3 p-2 bg-dark-900/40 rounded-lg">
@@ -1675,6 +1915,7 @@ export default function GeneratorPage() {
                             />
                             <span className="text-sm text-slate-300">
                               Progressions (5,10,15)
+                              <Tooltip text="Évite les progressions arithmétiques comme 5-10-15 ou 3-6-9." />
                             </span>
                           </label>
                           <label className="flex items-center gap-3 p-2 bg-dark-900/40 rounded-lg">
@@ -1688,6 +1929,7 @@ export default function GeneratorPage() {
                             />
                             <span className="text-sm text-slate-300">
                               Anniversaires (≤31)
+                              <Tooltip text="Évite trop de numéros ≤31 (jours du mois) que les joueurs utilisent pour les dates de naissance." />
                             </span>
                           </label>
                           <label className="flex items-center gap-3 p-2 bg-dark-900/40 rounded-lg">
@@ -1701,6 +1943,7 @@ export default function GeneratorPage() {
                             />
                             <span className="text-sm text-slate-300">
                               Multiples de 5
+                              <Tooltip text="Évite les numéros comme 5,10,15,20,25,30,35,40,45 qui sont populaires." />
                             </span>
                           </label>
                           <label className="flex items-center gap-3 p-2 bg-dark-900/40 rounded-lg">
@@ -1714,16 +1957,18 @@ export default function GeneratorPage() {
                             />
                             <span className="text-sm text-slate-300">
                               Terminaisons répétitives
+                              <Tooltip text="Évite les numéros qui finissent par le même chiffre (ex: 12,22,32)." />
                             </span>
                           </label>
                           <div>
-                            <label className="text-sm text-slate-400 mb-1 block">
+                            <label className="flex items-center gap-2 text-sm text-slate-400 mb-1 block">
                               Poids ({penaltyWeight.toFixed(1)}x)
+                              <Tooltip text="Importance de l'anti-biais. Plus c'est élevé, plus les patterns humains seront évités." />
                             </label>
                             <input
                               type="range"
-                              min="0.5"
-                              max="2"
+                              min="0.1"
+                              max="5"
                               step="0.1"
                               value={penaltyWeight}
                               onChange={(e) =>
@@ -1752,12 +1997,18 @@ export default function GeneratorPage() {
                         <label className="text-base font-semibold text-yellow-300">
                           Paires fréquentes
                         </label>
+                        <Tooltip text="Favorise les paires de numéros qui sortent souvent ensemble dans l'historique." />
                       </div>
+                      <p className="text-xs text-slate-400">
+                        Favorise les combinaisons qui sont historiquement
+                        fréquentes.
+                      </p>
                       {enableFrequentPairs && (
                         <div className="space-y-4">
                           <div>
-                            <label className="text-sm text-slate-400 mb-1 block">
+                            <label className="flex items-center gap-2 text-sm text-slate-400 mb-1 block">
                               Bonus ({pairBonusWeight} pts)
+                              <Tooltip text="Importance donnée aux paires fréquentes. Plus c'est élevé, plus le générateur privilégiera ces paires." />
                             </label>
                             <input
                               type="range"
@@ -1771,8 +2022,9 @@ export default function GeneratorPage() {
                             />
                           </div>
                           <div>
-                            <label className="text-sm text-slate-400 mb-1 block">
-                              Max paires/grille
+                            <label className="flex items-center gap-2 text-sm text-slate-400 mb-1 block">
+                              Max paires par grille
+                              <Tooltip text="Nombre maximum de paires fréquentes autorisées dans une grille." />
                             </label>
                             <input
                               type="number"
@@ -1803,10 +2055,16 @@ export default function GeneratorPage() {
                         <label className="text-base font-semibold text-pink-300">
                           Signature modulaire
                         </label>
+                        <Tooltip text="Analyse mathématique avancée des patterns modulo 5 et 7 pour détecter des structures cachées." />
                       </div>
+                      <p className="text-xs text-slate-400">
+                        Algorithmes expérimentaux basés sur des analyses
+                        mathématiques avancées.
+                      </p>
                       <div>
-                        <label className="text-sm text-slate-400 mb-2 block">
+                        <label className="flex items-center gap-2 text-sm text-slate-400 mb-2 block">
                           Pondération temporelle
+                          <Tooltip text="Importance donnée aux tirages récents. Uniforme = tous les tirages comptent pareil, Exponentielle = tirages récents beaucoup plus importants." />
                         </label>
                         <select
                           value={recencyMode}
@@ -1815,10 +2073,16 @@ export default function GeneratorPage() {
                           }
                           className="w-full px-4 py-3 bg-dark-900/60 border border-pink-500/30 rounded-xl text-white"
                         >
-                          <option value="uniform">Uniforme</option>
-                          <option value="light">Légère</option>
-                          <option value="strong">Forte</option>
-                          <option value="exponential">Exponentielle</option>
+                          <option value="uniform">Uniforme (tous égaux)</option>
+                          <option value="light">
+                            Légère (récents un peu plus importants)
+                          </option>
+                          <option value="strong">
+                            Forte (récents beaucoup plus importants)
+                          </option>
+                          <option value="exponential">
+                            Exponentielle (récents dominants)
+                          </option>
                         </select>
                       </div>
                     </div>
@@ -1850,6 +2114,7 @@ export default function GeneratorPage() {
         </div>
       </div>
 
+      {/* ============ SECTION 5: GENERATED GRIDS DISPLAY ============ */}
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 mb-8 flex items-center gap-4 animate-fade-in">
           <span className="text-red-400 text-2xl bg-red-500/20 p-2 rounded-full">

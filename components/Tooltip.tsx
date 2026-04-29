@@ -23,7 +23,7 @@ export default function Tooltip({ text, children }: TooltipProps) {
           </div>
         )}
       </div>
-      
+
       {show && (
         <div className="absolute z-50 left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 px-4 py-3 bg-slate-900 border border-white/20 rounded-xl shadow-2xl text-sm text-slate-200 leading-relaxed animate-fade-in">
           <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-slate-900"></div>

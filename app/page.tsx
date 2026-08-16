@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 
 export default function Home() {
   const [syncing, setSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importResult, setImportResult] = useState<any>(null);
+  const [importError, setImportError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSync = async () => {
     setSyncing(true);
@@ -29,6 +33,27 @@ export default function Home() {
       setError("Erreur réseau lors de la synchronisation");
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setImportError(null);
+    setImportResult(null);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/draws/import", { method: "POST", body: form });
+      const data = await res.json();
+      if (!res.ok) setImportError(data.error || "Erreur import");
+      else setImportResult(data);
+    } catch {
+      setImportError("Erreur réseau");
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -179,8 +204,62 @@ export default function Home() {
           )}
         </div>
 
+        {/* IMPORT CSV PANEL */}
+        <div className="glass-panel rounded-3xl p-8 border border-white/5 mx-auto max-w-4xl z-10">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 flex-1">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <span className="p-2 bg-teal-500/20 rounded-xl text-teal-400">📂</span>
+                Import CSV officiel FDJ
+              </h2>
+              <p className="text-slate-400">
+                Importez un fichier CSV depuis{" "}
+                <span className="text-teal-400 font-medium">data.gouv.fr</span>{" "}
+                pour enrichir la base sans limite de fréquence.
+              </p>
+            </div>
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv,.txt"
+                onChange={handleImport}
+                className="hidden"
+                id="csv-upload"
+              />
+              <label
+                htmlFor="csv-upload"
+                className={`cursor-pointer inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-bold text-base transition-all border ${
+                  importing
+                    ? "opacity-50 cursor-wait border-teal-500/30 text-teal-400"
+                    : "border-teal-500/40 text-teal-300 hover:bg-teal-500/10 hover:border-teal-400"
+                }`}
+              >
+                {importing ? "Import en cours..." : "Choisir un fichier CSV"}
+              </label>
+            </div>
+          </div>
+
+          {importResult && (
+            <div className="mt-6 p-5 bg-teal-500/5 border border-teal-500/30 rounded-xl animate-fade-in">
+              <p className="text-teal-400 font-bold mb-2">Import réussi</p>
+              <div className="flex gap-6 text-sm text-slate-300">
+                <span>Lus : <b>{importResult.parsed}</b></span>
+                <span>Valides : <b>{importResult.valid}</b></span>
+                <span className="text-emerald-400">Insérés : <b>+{importResult.inserted}</b></span>
+                <span className="text-slate-500">Doublons ignorés : <b>{importResult.skipped}</b></span>
+              </div>
+            </div>
+          )}
+          {importError && (
+            <p className="mt-4 text-red-400 text-sm flex items-center gap-2">
+              <span>❌</span> {importError}
+            </p>
+          )}
+        </div>
+
         {/* NAVIGATION CARDS */}
-        <div className="grid md:grid-cols-3 gap-8 z-10 relative">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 z-10 relative">
           <Link
             href="/results"
             className="group glass rounded-3xl p-10 hover:-translate-y-3 hover:bg-white/10 hover:border-blue-500/40 transition-all duration-500 shadow-xl hover:shadow-[0_20px_60px_-15px_rgba(59,130,246,0.3)]"
@@ -226,6 +305,21 @@ export default function Home() {
             <p className="text-slate-400 text-lg leading-relaxed">
               Créez des grilles hautement optimisées en appliquant des
               contraintes statistiques et mathématiques intelligentes.
+            </p>
+          </Link>
+
+          <Link
+            href="/checker"
+            className="group glass rounded-3xl p-10 hover:-translate-y-3 hover:bg-white/10 hover:border-amber-500/40 transition-all duration-500 shadow-xl hover:shadow-[0_20px_60px_-15px_rgba(245,158,11,0.3)]"
+          >
+            <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-3xl mb-8 group-hover:scale-110 transition-transform duration-500 group-hover:shadow-[0_0_30px_rgba(245,158,11,0.4)]">
+              🏆
+            </div>
+            <h3 className="text-3xl font-bold text-white mb-4 group-hover:text-amber-400 transition-colors">
+              Vérificateur
+            </h3>
+            <p className="text-slate-400 text-lg leading-relaxed">
+              Testez n&apos;importe quelle grille contre l&apos;historique complet et découvrez combien de fois elle aurait été gagnante.
             </p>
           </Link>
         </div>

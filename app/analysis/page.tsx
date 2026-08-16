@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { CardSkeleton } from "@/components/LoadingSkeleton";
 import {
   BarChart,
   Bar,
@@ -298,18 +299,25 @@ export default function AnalysisPage() {
       </div>
 
       {loading && (
-        <div className="text-center py-20 animate-pulse">
-          <div className="inline-block h-16 w-16 border-4 border-white/10 border-t-emerald-500 rounded-full animate-spin"></div>
-          <p className="mt-6 text-slate-400 font-medium tracking-widest uppercase">
-            Analyse en cours...
-          </p>
+        <div className="grid md:grid-cols-2 gap-6 mt-6">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <CardSkeleton key={i} />
+          ))}
         </div>
       )}
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 mb-8 flex items-center gap-4">
-          <span className="text-red-400 text-2xl">❌</span>
-          <p className="text-red-400 font-medium">{error}</p>
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 mb-8 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-red-400 text-2xl">❌</span>
+            <p className="text-red-400 font-medium">{error}</p>
+          </div>
+          <button
+            onClick={fetchStats}
+            className="px-4 py-2 text-sm border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/10 transition-all whitespace-nowrap"
+          >
+            Réessayer
+          </button>
         </div>
       )}
 

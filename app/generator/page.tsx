@@ -7,6 +7,7 @@ import PresetSelector from "@/components/PresetSelector";
 import ScoreExplanation from "@/components/ScoreExplanation";
 import ComprehensiveScoreDisplay from "@/components/ComprehensiveScoreDisplay";
 import { GenerateConstraints, GeneratedGrid } from "@/lib/types";
+import { useSavedGrids } from "@/lib/use-saved-grids";
 import {
   GridPreset,
   DispersionProfile,
@@ -24,6 +25,8 @@ export default function GeneratorPage() {
   const [expandedExplanation, setExpandedExplanation] = useState<number | null>(
     null,
   );
+  const { savedGrids, saveGrid, deleteGrid, clearAll } = useSavedGrids();
+  const [showSaved, setShowSaved] = useState(false);
 
   // ============ BASIC GENERATION CONSTRAINTS ============
   const [count, setCount] = useState(5);
@@ -2138,6 +2141,71 @@ export default function GeneratorPage() {
         </div>
       )}
 
+      {/* Saved grids panel */}
+      <div className="mt-8">
+        <button
+          onClick={() => setShowSaved((v) => !v)}
+          className="flex items-center gap-3 px-6 py-3 rounded-xl glass border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 transition-all font-bold text-sm"
+        >
+          <span>★</span> Grilles sauvegardées ({savedGrids.length})
+          <span className="ml-1 text-xs">{showSaved ? "▲" : "▼"}</span>
+        </button>
+
+        {showSaved && (
+          <div className="mt-4 glass-panel rounded-2xl p-6 border border-white/10 animate-fade-in">
+            {savedGrids.length === 0 ? (
+              <p className="text-slate-500 text-sm text-center py-4">
+                Aucune grille sauvegardée. Cliquez sur ★ Sauvegarder sous une grille générée.
+              </p>
+            ) : (
+              <>
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-white">Mes grilles ({savedGrids.length})</h3>
+                  <button
+                    onClick={clearAll}
+                    className="text-xs text-red-400 hover:text-red-300 border border-red-500/30 px-3 py-1 rounded-lg hover:bg-red-500/10 transition-all"
+                  >
+                    Tout effacer
+                  </button>
+                </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {savedGrids.map((saved) => (
+                    <div key={saved.id} className="bg-dark-900/60 rounded-xl p-4 border border-white/5 relative">
+                      <div className="flex justify-between items-start mb-3">
+                        <span className="text-xs text-slate-500">
+                          {new Date(saved.savedAt).toLocaleDateString("fr-FR", {
+                            day: "2-digit", month: "2-digit", year: "2-digit",
+                            hour: "2-digit", minute: "2-digit",
+                          })}
+                        </span>
+                        <button
+                          onClick={() => deleteGrid(saved.id)}
+                          className="text-red-400/60 hover:text-red-400 text-xs ml-2"
+                          title="Supprimer"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {saved.grid.nums.map((n) => (
+                          <NumberBadge key={n} number={n} />
+                        ))}
+                        <div className="w-px bg-white/10 mx-1" />
+                        <NumberBadge number={saved.grid.chance} variant="chance" />
+                      </div>
+                      <div className="text-xs text-slate-500 flex gap-3">
+                        <span>Score <span className="text-slate-300">{saved.grid.score.toFixed(0)}</span></span>
+                        <span>Somme <span className="text-slate-300">{saved.grid.metadata.sum}</span></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
       {grids.length > 0 && (
         <div id="results-section" className="animate-slide-up pt-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
@@ -2253,18 +2321,24 @@ export default function GeneratorPage() {
                   <ComprehensiveScoreDisplay score={grid.comprehensiveScore} />
                 )}
 
-                {/* Explanation Toggle */}
-                <button
-                  onClick={() =>
-                    setExpandedExplanation(expandedExplanation === i ? null : i)
-                  }
-                  className="mt-4 w-full bg-dark-900/50 border border-blue-500/30 text-blue-400 px-4 py-3 rounded-xl hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 font-bold text-sm flex items-center justify-center gap-2"
-                >
-                  <span>💡</span>
-                  {expandedExplanation === i
-                    ? "Masquer l'explication"
-                    : "Voir pourquoi ces numéros"}
-                </button>
+                {/* Save + Explanation buttons */}
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => saveGrid(grid)}
+                    className="flex-1 bg-dark-900/50 border border-amber-500/30 text-amber-400 px-4 py-3 rounded-xl hover:bg-amber-500/20 hover:text-amber-300 transition-all duration-300 font-bold text-sm flex items-center justify-center gap-2"
+                  >
+                    <span>★</span> Sauvegarder
+                  </button>
+                  <button
+                    onClick={() =>
+                      setExpandedExplanation(expandedExplanation === i ? null : i)
+                    }
+                    className="flex-1 bg-dark-900/50 border border-blue-500/30 text-blue-400 px-4 py-3 rounded-xl hover:bg-blue-500/20 hover:text-blue-300 transition-all duration-300 font-bold text-sm flex items-center justify-center gap-2"
+                  >
+                    <span>💡</span>
+                    {expandedExplanation === i ? "Masquer" : "Pourquoi ?"}
+                  </button>
+                </div>
 
                 {/* Explanation Display */}
                 {expandedExplanation === i && (

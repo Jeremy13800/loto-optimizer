@@ -21,3 +21,13 @@ model Draw {
   @@index([dateISO])
   @@index([chance])
 }
+
+// Generic persisted key/value cache.
+// Used for stats caching ("stats:...") and sync rate-limiting ("sync:lastSync"),
+// so both survive across serverless cold starts / multiple instances
+// (unlike a plain in-memory Map or module-level variable).
+model AppCache {
+  key       String   @id
+  value     String // JSON-encoded
+  updatedAt DateTime @updatedAt
+}

@@ -7,15 +7,23 @@ import {
   generateDrawId,
 } from "@/lib/scraper";
 import { SyncResult } from "@/lib/types";
+import { getCached, setCached, invalidateCache } from "@/lib/stats-cache";
 
 const CACHE_DURATION = 6 * 60 * 60 * 1000;
-let lastSync: { timestamp: number; etag: string } | null = null;
+const LAST_SYNC_KEY = "sync:lastSync";
 
 export async function POST(request: NextRequest) {
   try {
     const now = Date.now();
 
-    if (lastSync && now - lastSync.timestamp < CACHE_DURATION) {
+    // Persisted in the DB (not a module-level variable) so the rate limit
+    // holds across serverless cold starts / multiple instances.
+    const lastSync = await getCached<{ timestamp: number; etag: string }>(
+      LAST_SYNC_KEY,
+      CACHE_DURATION,
+    );
+
+    if (lastSync) {
       return NextResponse.json(
         {
           error: "Sync too recent. Please wait before syncing again.",
@@ -132,7 +140,8 @@ export async function POST(request: NextRequest) {
     });
 
     const etag = `${validDraws.length}-${latestDraw?.dateISO || "none"}`;
-    lastSync = { timestamp: now, etag };
+    await setCached(LAST_SYNC_KEY, { timestamp: now, etag });
+    await invalidateCache("stats:");
 
     const result: SyncResult = {
       count: validDraws.length,

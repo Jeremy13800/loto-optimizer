@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Draw } from "@/lib/types";
 import { calculateStats } from "@/lib/stats";
+import { getCached, setCached } from "@/lib/stats-cache";
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,6 +11,12 @@ export async function GET(request: NextRequest) {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
     const lastNDraws = searchParams.get("lastNDraws");
+
+    const cacheKey = `stats:${window}:${lastNDraws || ""}:${from || ""}:${to || ""}`;
+    const cached = await getCached(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
 
     let dbDraws;
 
@@ -59,12 +66,10 @@ export async function GET(request: NextRequest) {
 
     const stats = calculateStats(draws);
 
-    return NextResponse.json({
-      window,
-      from: from || null,
-      to: to || null,
-      stats,
-    });
+    const result = { window, from: from || null, to: to || null, stats };
+    await setCached(cacheKey, result);
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Error calculating stats:", error);
     return NextResponse.json(
